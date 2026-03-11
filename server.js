@@ -4,13 +4,11 @@ const path = require("path");
 const url = require("url");
 const { Pool } = require("pg");
 
-// PostgreSQL connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || "postgresql://lumis_db_872t_user:BlKubgH6A0pGVfrQ3ZqlpYZyC7FDYsPb@dpg-d6ok53h5pdvs73el61cg-a/lumis_db_872t",
   ssl: { rejectUnauthorized: false }
 });
 
-// Create tables if they don't exist
 async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS players (
@@ -19,14 +17,15 @@ async function initDB() {
       collection JSONB DEFAULT '{}'
     )
   `);
-  console.log("✅ Datenbank bereit");
+  console.log("Datenbank bereit");
 }
 
-// Game state (in memory)
+// Game state
 let gameState = {
   activeLumi: null,
   catchOpen: false,
   spawnAt: null,
+  attempted: new Set(), // wer bereits versucht hat
 };
 
 const LUMIS = [
@@ -63,13 +62,14 @@ function scheduleNextSpawn() {
   setTimeout(() => {
     gameState.activeLumi = spawnRandomLumi();
     gameState.catchOpen = true;
-    console.log(`✨ Lumi gespawnt: ${gameState.activeLumi.name} (${gameState.activeLumi.rarity})`);
-    // Auto-close after 20 seconds
+    gameState.attempted = new Set(); // reset für neuen Spawn
+    console.log(`Lumi gespawnt: ${gameState.activeLumi.name} (${gameState.activeLumi.rarity})`);
     setTimeout(() => {
       if (gameState.catchOpen) {
-        console.log(`💨 ${gameState.activeLumi?.name} entkommen`);
+        console.log(`${gameState.activeLumi?.name} entkommen`);
         gameState.catchOpen = false;
         gameState.activeLumi = null;
+        gameState.attempted = new Set();
         scheduleNextSpawn();
       }
     }, 20000);
@@ -81,13 +81,11 @@ function setCORS(res) {
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
-
 function sendJSON(res, data, status=200) {
   setCORS(res);
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
 }
-
 function readBody(req) {
   return new Promise(resolve => {
     let body = "";
@@ -102,15 +100,19 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "OPTIONS") { setCORS(res); res.writeHead(204); res.end(); return; }
 
-  // Serve frontend
-  if (req.method === "GET" && pathname === "/") {
-    const html = fs.readFileSync(path.join(__dirname, "index.html"));
+  // Serve HTML files
+  if (req.method === "GET" && (pathname === "/" || pathname === "/index.html")) {
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(html);
+    res.end(fs.readFileSync(path.join(__dirname, "index.html")));
+    return;
+  }
+  if (req.method === "GET" && pathname === "/video_overlay.html") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(fs.readFileSync(path.join(__dirname, "video_overlay.html")));
     return;
   }
 
-  // API: get current game state + leaderboard
+  // GET /api/state
   if (req.method === "GET" && pathname === "/api/state") {
     try {
       const lb = await pool.query(
@@ -120,7 +122,7 @@ const server = http.createServer(async (req, res) => {
         lumi: gameState.activeLumi,
         catchOpen: gameState.catchOpen,
         nextSpawnIn: gameState.spawnAt ? Math.max(0, Math.round((gameState.spawnAt - Date.now()) / 1000)) : 0,
-        leaderboard: lb.rows,
+        leaderboard: lb.rows, // rows have { username, points } — no undefined
       });
     } catch(e) {
       sendJSON(res, { error: e.message }, 500);
@@ -128,12 +130,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // API: try to catch
+  // POST /api/catch
   if (req.method === "POST" && pathname === "/api/catch") {
     const body = await readBody(req);
     const username = (body.username || "").trim().slice(0, 32);
+
     if (!username) return sendJSON(res, { success: false, reason: "no_username" });
     if (!gameState.catchOpen || !gameState.activeLumi) return sendJSON(res, { success: false, reason: "no_lumi" });
+
+    // Bereits versucht?
+    const key = username.toLowerCase();
+    if (gameState.attempted.has(key)) {
+      return sendJSON(res, { success: false, reason: "already_tried" });
+    }
+
+    // Sofort als versucht markieren — verhindert Doppelklick
+    gameState.attempted.add(key);
 
     const lumi = gameState.activeLumi;
     const roll = Math.random();
@@ -142,7 +154,6 @@ const server = http.createServer(async (req, res) => {
 
     if (caught) {
       try {
-        // Upsert player + update collection
         await pool.query(`
           INSERT INTO players (username, points, collection)
           VALUES ($1, $2, $3::jsonb)
@@ -154,30 +165,27 @@ const server = http.createServer(async (req, res) => {
               (COALESCE((players.collection->>$4)::int, 0) + 1)::text::jsonb
             )
         `, [username, lumi.points, JSON.stringify({[lumi.id]: 1}), lumi.id]);
-        console.log(`✅ ${username} fing ${lumi.name}`);
+        console.log(`${username} fing ${lumi.name}`);
       } catch(e) {
         console.error("DB Fehler:", e.message);
       }
+    } else {
+      console.log(`${username} verfehlte ${lumi.name}`);
     }
 
-    sendJSON(res, {
-      success: caught,
-      lumi,
-      roll: Math.round(roll * 100),
-      needed: Math.round(chance * 100)
-    });
+    sendJSON(res, { success: caught, lumi, roll: Math.round(roll*100), needed: Math.round(chance*100) });
     return;
   }
 
-  // API: get player data
+  // GET /api/player/:username
   if (req.method === "GET" && pathname.startsWith("/api/player/")) {
-    const username = decodeURIComponent(pathname.split("/api/player/")[1]);
+    const uname = decodeURIComponent(pathname.split("/api/player/")[1]);
     try {
-      const r = await pool.query("SELECT * FROM players WHERE username = $1", [username]);
-      const player = r.rows[0] || { points: 0, collection: {} };
-      sendJSON(res, { username, points: player.points, collection: player.collection });
+      const r = await pool.query("SELECT username, points, collection FROM players WHERE username = $1", [uname]);
+      const player = r.rows[0] || { username: uname, points: 0, collection: {} };
+      sendJSON(res, player);
     } catch(e) {
-      sendJSON(res, { username, points: 0, collection: {} });
+      sendJSON(res, { username: uname, points: 0, collection: {} });
     }
     return;
   }
@@ -185,14 +193,10 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(404); res.end("Not found");
 });
 
-// Start
 const PORT = process.env.PORT || 3000;
 initDB().then(() => {
   scheduleNextSpawn();
   server.listen(PORT, () => {
-    console.log("╔════════════════════════════════╗");
-    console.log("║   ✨ LUMIS SERVER GESTARTET ✨  ║");
-    console.log(`║   Port: ${PORT}                    ║`);
-    console.log("╚════════════════════════════════╝");
+    console.log(`Lumis Server läuft auf Port ${PORT}`);
   });
 });
