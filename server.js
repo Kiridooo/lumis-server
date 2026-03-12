@@ -190,6 +190,24 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Admin cleanup endpoint
+  if (req.method === "GET" && pathname === "/api/admin/cleanup") {
+    if (parsed.query.key !== "lumis2026") return sendJSON(res, { error: "unauthorized" }, 401);
+    try {
+      const before = await pool.query("SELECT username, points FROM players ORDER BY points DESC");
+      await pool.query("DELETE FROM players WHERE username = 'undefined' OR username = '' OR username IS NULL");
+      const after = await pool.query("SELECT username, points FROM players ORDER BY points DESC");
+      sendJSON(res, {
+        message: "Cleanup done!",
+        before: before.rows,
+        after: after.rows
+      });
+    } catch(e) {
+      sendJSON(res, { error: e.message }, 500);
+    }
+    return;
+  }
+
   res.writeHead(404); res.end("Not found");
 });
 
