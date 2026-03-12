@@ -6,12 +6,11 @@
 <title>Lumis</title>
 <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Rajdhani:wght@700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden}
 body{
   background:linear-gradient(160deg,#1a1035 0%,#0e0b1a 100%);
-  font-family:'Nunito',sans-serif;color:#e8e0ff;
+  font-family:'Segoe UI',Arial,sans-serif;color:#e8e0ff;
   display:flex;flex-direction:column;
 }
 
@@ -24,7 +23,7 @@ body{
 }
 .name-screen.hidden{display:none}
 .ns-title{
-  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
+  font-family:'Segoe UI',Arial,sans-serif;font-size:22px;font-weight:700;
   background:linear-gradient(90deg,#c084fc,#67e8f9);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;
 }
@@ -32,12 +31,12 @@ body{
 .ns-input{
   width:100%;padding:9px 12px;
   background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);
-  border-radius:10px;color:#e8e0ff;font-family:'Nunito',sans-serif;font-size:13px;outline:none;
+  border-radius:10px;color:#e8e0ff;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;outline:none;
 }
 .ns-input:focus{border-color:#7B2FBE}
 .ns-btn{
   width:100%;padding:10px;background:linear-gradient(135deg,#7B2FBE,#4a1880);
-  border:none;border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;
+  border:none;border-radius:10px;color:#fff;font-family:'Segoe UI',Arial,sans-serif;
   font-size:13px;font-weight:900;cursor:pointer;letter-spacing:1px;
 }
 .ns-btn:hover{opacity:0.9}
@@ -49,7 +48,7 @@ body{
   border-bottom:1px solid rgba(255,255,255,0.06);
 }
 .header-title{
-  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  font-family:'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:700;
   background:linear-gradient(90deg,#c084fc,#67e8f9);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;
 }
@@ -81,7 +80,7 @@ body{
 .progress-bar{height:100%;border-radius:2px;transition:width 1s linear}
 .catch-btn{
   width:100%;margin-top:8px;padding:9px;border:none;border-radius:10px;
-  color:#fff;font-weight:900;font-size:13px;font-family:'Nunito',sans-serif;
+  color:#fff;font-weight:900;font-size:13px;font-family:'Segoe UI',Arial,sans-serif;
   cursor:pointer;letter-spacing:1px;transition:transform 0.1s;
 }
 .catch-btn:hover{transform:scale(1.02)}
@@ -93,7 +92,7 @@ body{
 .tab-btn{
   flex:1;padding:5px 2px;background:rgba(255,255,255,0.02);
   border:1px solid rgba(255,255,255,0.06);border-radius:8px;
-  color:#5a5070;font-size:9px;font-weight:900;font-family:'Nunito',sans-serif;
+  color:#5a5070;font-size:9px;font-weight:900;font-family:'Segoe UI',Arial,sans-serif;
   cursor:pointer;letter-spacing:1px;transition:all 0.2s;
 }
 .tab-btn.active{background:rgba(123,47,190,0.2);border-color:rgba(123,47,190,0.5);color:#d8b4fe}
@@ -204,7 +203,7 @@ body{
 </div>
 
 <script>
-const SERVER = "https://lumis-server.onrender.com";
+const SERVER = "";  // same origin - served from render
 const RC = {common:"#95E1A3",rare:"#7B8FFF",epic:"#00D4FF",legendary:"#FFD700"};
 const CL = {common:"70%",rare:"22%",epic:"6%",legendary:"2%"};
 const CE = {common:"🟢",rare:"🔵",epic:"💎",legendary:"⭐"};
