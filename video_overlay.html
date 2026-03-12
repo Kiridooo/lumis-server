@@ -8,277 +8,206 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Rajdhani:wght@700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
 body{
-  width:100vw;height:100vh;
-  background:transparent;
-  font-family:'Nunito',sans-serif;
-  color:#e8e0ff;
-  overflow:hidden;
-  pointer-events:none;
-}
-
-/* ── Spawn Alert (center) ── */
-.spawn-alert{
-  position:fixed;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%) scale(0.8);
-  background:linear-gradient(135deg,rgba(14,11,26,0.92),rgba(13,16,42,0.92));
-  border:2px solid var(--rc,#7B2FBE);
-  border-radius:24px;
-  padding:28px 36px;
-  text-align:center;
-  min-width:280px;
-  box-shadow:0 0 60px var(--glow,rgba(123,47,190,0.4));
-  pointer-events:all;
-  display:none;
-  flex-direction:column;align-items:center;gap:12px;
-  backdrop-filter:blur(12px);
-}
-.spawn-alert.visible{
-  display:flex;
-  animation:alertIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-}
-.spawn-alert.hiding{
-  animation:alertOut 0.3s ease forwards;
-}
-
-@keyframes alertIn{
-  from{opacity:0;transform:translate(-50%,-50%) scale(0.7)}
-  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
-}
-@keyframes alertOut{
-  from{opacity:1;transform:translate(-50%,-50%) scale(1)}
-  to{opacity:0;transform:translate(-50%,-50%) scale(0.8)}
-}
-
-.rarity-badge{
-  font-size:10px;letter-spacing:3px;font-weight:900;
-  padding:3px 12px;border-radius:20px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid currentColor;
-}
-.lumi-emoji{
-  font-size:72px;line-height:1;
-  animation:bob 1.2s ease-in-out infinite;
-  filter:drop-shadow(0 0 24px var(--lumi-color,#fff));
-}
-.lumi-name{font-size:24px;font-weight:900;letter-spacing:1px}
-.lumi-sub{font-size:12px;color:#9d8fc0}
-.catch-chance{font-size:12px}
-
-.progress-wrap{width:200px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.progress-bar{height:100%;border-radius:3px;transition:width 1s linear}
-
-.catch-btn{
-  padding:12px 32px;
-  border:none;border-radius:14px;
-  color:#fff;font-weight:900;font-size:15px;font-family:'Nunito',sans-serif;
-  cursor:pointer;letter-spacing:1px;
-  transition:transform 0.1s;
-  position:relative;overflow:hidden;
-}
-.catch-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent)}
-.catch-btn:hover{transform:scale(1.05)}
-.catch-btn:active{transform:scale(0.95)}
-
-/* ── Username input overlay ── */
-.name-overlay{
-  position:fixed;inset:0;
-  background:rgba(10,8,20,0.85);
-  backdrop-filter:blur(8px);
+  background:linear-gradient(160deg,#1a1035 0%,#0e0b1a 100%);
+  font-family:'Nunito',sans-serif;color:#e8e0ff;
   display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:16px;pointer-events:all;
-  z-index:100;
 }
-.name-overlay.hidden{display:none}
-.name-box{
-  background:linear-gradient(135deg,rgba(123,47,190,0.2),rgba(0,212,255,0.1));
-  border:1.5px solid rgba(123,47,190,0.5);
-  border-radius:20px;padding:32px;
-  text-align:center;display:flex;flex-direction:column;gap:14px;
-  max-width:320px;width:90%;
+
+/* ── Name Setup Screen ── */
+.name-screen{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#1a1035,#0e0b1a);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:20px;z-index:50;
 }
-.name-title{
-  font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
+.name-screen.hidden{display:none}
+.ns-title{
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
   background:linear-gradient(90deg,#c084fc,#67e8f9);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  letter-spacing:2px;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;
 }
-.name-sub{font-size:12px;color:#7a6d9a}
-.name-input{
-  padding:10px 16px;
-  background:rgba(255,255,255,0.06);
-  border:1.5px solid rgba(255,255,255,0.12);
-  border-radius:10px;color:#e8e0ff;
-  font-family:'Nunito',sans-serif;font-size:14px;
-  outline:none;transition:border-color 0.2s;text-align:center;
+.ns-sub{font-size:11px;color:#6b5f8a;text-align:center;line-height:1.5}
+.ns-input{
+  width:100%;padding:9px 12px;
+  background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:10px;color:#e8e0ff;font-family:'Nunito',sans-serif;font-size:13px;outline:none;
 }
-.name-input:focus{border-color:#7B2FBE}
-.name-input::placeholder{color:#4a4060}
-.name-save{
-  padding:11px;background:linear-gradient(135deg,#7B2FBE,#00D4FF);
-  border:none;border-radius:10px;
-  color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;
-  cursor:pointer;transition:opacity 0.2s;letter-spacing:1px;
+.ns-input:focus{border-color:#7B2FBE}
+.ns-btn{
+  width:100%;padding:10px;background:linear-gradient(135deg,#7B2FBE,#4a1880);
+  border:none;border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;
+  font-size:13px;font-weight:900;cursor:pointer;letter-spacing:1px;
 }
-.name-save:hover{opacity:0.9}
+.ns-btn:hover{opacity:0.9}
 
-/* ── Collection Panel (bottom right) ── */
-.coll-toggle{
-  position:fixed;bottom:20px;right:20px;
-  width:48px;height:48px;
-  background:linear-gradient(135deg,rgba(123,47,190,0.8),rgba(0,212,255,0.6));
-  border:none;border-radius:14px;
-  font-size:22px;cursor:pointer;
-  box-shadow:0 4px 20px rgba(123,47,190,0.4);
-  pointer-events:all;
-  transition:transform 0.2s;
-  display:flex;align-items:center;justify-content:center;
+/* ── Header ── */
+.header{
+  padding:10px 12px 6px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,0.06);
 }
-.coll-toggle:hover{transform:scale(1.1)}
+.header-title{
+  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  background:linear-gradient(90deg,#c084fc,#67e8f9);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;
+}
+.header-user{font-size:10px;color:#6b5f8a;cursor:pointer}
+.header-user:hover{color:#a78bfa}
 
-.coll-panel{
-  position:fixed;bottom:76px;right:20px;
-  width:280px;
-  background:linear-gradient(135deg,rgba(14,11,26,0.95),rgba(13,16,42,0.95));
-  border:1.5px solid rgba(123,47,190,0.4);
-  border-radius:18px;padding:16px;
-  pointer-events:all;
-  display:none;
-  flex-direction:column;gap:10px;
-  backdrop-filter:blur(12px);
-  max-height:60vh;overflow-y:auto;
+/* ── Spawn Zone ── */
+.spawn-zone{
+  margin:10px 10px 6px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:12px;text-align:center;
+  transition:all 0.4s;
 }
-.coll-panel.open{display:flex}
-.coll-panel::-webkit-scrollbar{width:3px}
-.coll-panel::-webkit-scrollbar-thumb{background:#3a2d5a;border-radius:2px}
+.spawn-zone.active{
+  border-color:var(--ac,#7B2FBE);
+  box-shadow:0 0 20px var(--ag,rgba(123,47,190,0.25));
+}
+.idle-icon{font-size:24px;margin-bottom:4px}
+.idle-text{font-size:11px;color:#6b5f8a}
+.idle-timer{color:#a78bfa;font-weight:900}
+.lumi-row{display:flex;align-items:center;gap:10px}
+.lumi-emoji-sm{font-size:42px;line-height:1;animation:bob 1.2s ease-in-out infinite}
+.lumi-details{flex:1;text-align:left}
+.rarity-badge-sm{font-size:8px;letter-spacing:2px;font-weight:900;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid currentColor;display:inline-block;margin-bottom:3px}
+.lumi-name-sm{font-size:15px;font-weight:900}
+.lumi-pts{font-size:10px;color:#9d8fc0;margin-top:1px}
+.catch-chance-sm{font-size:10px;margin-top:2px}
+.progress-wrap{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:6px}
+.progress-bar{height:100%;border-radius:2px;transition:width 1s linear}
+.catch-btn{
+  width:100%;margin-top:8px;padding:9px;border:none;border-radius:10px;
+  color:#fff;font-weight:900;font-size:13px;font-family:'Nunito',sans-serif;
+  cursor:pointer;letter-spacing:1px;transition:transform 0.1s;
+}
+.catch-btn:hover{transform:scale(1.02)}
+.catch-btn:active{transform:scale(0.97)}
+.catch-btn:disabled{cursor:default;transform:none}
 
-.coll-header{
-  display:flex;justify-content:space-between;align-items:center;
+/* ── Tabs ── */
+.tabs{display:flex;margin:0 10px 6px;gap:4px}
+.tab-btn{
+  flex:1;padding:5px 2px;background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);border-radius:8px;
+  color:#5a5070;font-size:9px;font-weight:900;font-family:'Nunito',sans-serif;
+  cursor:pointer;letter-spacing:1px;transition:all 0.2s;
 }
-.coll-title{font-size:12px;color:#7a6d9a;letter-spacing:2px;font-weight:900}
-.coll-pts{font-size:12px;color:#fde68a;font-weight:900}
+.tab-btn.active{background:rgba(123,47,190,0.2);border-color:rgba(123,47,190,0.5);color:#d8b4fe}
 
-.critter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.critter-card{
-  text-align:center;
-  background:rgba(255,255,255,0.03);
-  border-radius:10px;padding:8px 4px;
-  border:1px solid rgba(255,255,255,0.05);
+/* ── Panel ── */
+.panel{
+  flex:1;margin:0 10px 10px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;overflow:hidden;overflow-y:auto;
 }
-.cc-emoji{font-size:22px}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:#3a2d5a;border-radius:2px}
+.tab-content{display:none;padding:10px}
+.tab-content.active{display:block}
+
+/* Chat */
+.chat-msg{font-size:10px;line-height:1.6;margin-bottom:1px}
+.cu{font-weight:900;margin-right:4px}
+.cu-system{color:#a78bfa}.cu-catch{color:#fde68a}.cu-normal{color:#67e8f9}
+.ct-system{color:#6b5f8a}.ct-normal{color:#b0a0d0}
+
+/* Collection */
+.sec-label{font-size:9px;color:#5a5070;letter-spacing:2px;margin-bottom:8px}
+.critter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.critter-card{text-align:center;background:rgba(255,255,255,0.03);border-radius:8px;padding:6px 2px;border:1px solid rgba(255,255,255,0.05)}
+.cc-emoji{font-size:20px}
 .cc-name{font-size:7px;color:#7a6d9a;margin-top:1px}
 .cc-count{font-size:9px;font-weight:900;margin-top:1px}
+.empty{text-align:center;color:#3a2d5a;padding:20px 0;font-size:11px}
 
-.empty-coll{text-align:center;color:#3a2d5a;padding:20px;font-size:12px}
-
-/* ── Leaderboard (bottom left) ── */
-.lb-toggle{
-  position:fixed;bottom:20px;left:20px;
-  width:48px;height:48px;
-  background:linear-gradient(135deg,rgba(255,215,0,0.6),rgba(255,100,0,0.6));
-  border:none;border-radius:14px;
-  font-size:22px;cursor:pointer;
-  box-shadow:0 4px 20px rgba(255,215,0,0.3);
-  pointer-events:all;
-  transition:transform 0.2s;
-  display:flex;align-items:center;justify-content:center;
-}
-.lb-toggle:hover{transform:scale(1.1)}
-
-.lb-panel{
-  position:fixed;bottom:76px;left:20px;
-  width:240px;
-  background:linear-gradient(135deg,rgba(14,11,26,0.95),rgba(13,16,42,0.95));
-  border:1.5px solid rgba(255,215,0,0.3);
-  border-radius:18px;padding:16px;
-  pointer-events:all;
-  display:none;flex-direction:column;gap:6px;
-  backdrop-filter:blur(12px);
-}
-.lb-panel.open{display:flex}
-.lb-title{font-size:10px;color:#7a6d9a;letter-spacing:2px;font-weight:900;margin-bottom:4px}
-.lb-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02)}
-.lb-row.me{background:rgba(123,47,190,0.15)}
-.lb-rank{width:20px;font-size:11px;font-weight:900}
-.lb-name{flex:1;font-size:11px;color:#9d8fc0}
+/* Leaderboard */
+.lb-row{display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid transparent}
+.lb-row.me{background:rgba(123,47,190,0.12);border-color:rgba(123,47,190,0.25)}
+.lb-rank{width:18px;font-size:10px;font-weight:900}
+.lb-name{flex:1;font-size:10px;color:#9d8fc0}
 .lb-name.me{color:#e8e0ff;font-weight:900}
-.lb-pts{font-size:11px;color:#fde68a;font-weight:900}
+.lb-pts{font-size:10px;color:#fde68a;font-weight:900}
 
-/* ── Toast ── */
+/* Toast */
 .toast{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  padding:10px 22px;border-radius:12px;
-  font-weight:900;font-size:13px;font-family:'Nunito',sans-serif;
-  pointer-events:none;z-index:200;
-  border:1.5px solid rgba(255,255,255,0.1);
-  animation:toastIn 0.3s ease,toastOut 0.3s ease 2.2s forwards;
+  position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+  padding:7px 14px;border-radius:10px;font-weight:900;font-size:11px;
+  pointer-events:none;z-index:100;border:1px solid rgba(255,255,255,0.1);
+  animation:toastIn 0.3s ease,toastOut 0.3s ease 2s forwards;white-space:nowrap;
 }
-@keyframes toastIn{from{opacity:0;top:10px}to{opacity:1;top:20px}}
-@keyframes toastOut{to{opacity:0;top:10px}}
-
-/* ── Stars ── */
-.star{position:fixed;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;pointer-events:none;animation:twinkle var(--d,3s) var(--delay,0s) infinite}
-@keyframes twinkle{0%,100%{opacity:0}50%{opacity:0.5}}
-@keyframes bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.03)}}
-
-/* Rarity colors */
-.r-common{--rc:#95E1A3;--glow:rgba(149,225,163,0.3)}
-.r-rare{--rc:#7B8FFF;--glow:rgba(123,143,255,0.3)}
-.r-epic{--rc:#00D4FF;--glow:rgba(0,212,255,0.35)}
-.r-legendary{--rc:#FFD700;--glow:rgba(255,215,0,0.4)}
+@keyframes toastIn{from{opacity:0;bottom:4px}to{opacity:1;bottom:10px}}
+@keyframes toastOut{to{opacity:0;bottom:4px}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 </style>
 </head>
 <body>
 
-<!-- BG Stars -->
-<div id="bgStars"></div>
+<!-- Name Setup -->
+<div class="name-screen" id="nameScreen">
+  <div class="ns-title">✦ LUMIS ✦</div>
+  <div class="ns-sub">Gib deinen Twitch-Namen ein um Lumis zu fangen!</div>
+  <input class="ns-input" id="nsInput" placeholder="Dein Twitch-Name..." maxlength="32">
+  <button class="ns-btn" onclick="saveNameAndStart()">Los geht's! ✨</button>
+</div>
 
-<!-- Username Setup -->
-<div class="name-overlay" id="nameOverlay">
-  <div class="name-box">
-    <div class="name-title">✦ LUMIS ✦</div>
-    <div class="name-sub">Gib deinen Twitch-Namen ein um Lumis zu fangen und zu sammeln!</div>
-    <input class="name-input" id="nameInput" placeholder="Dein Twitch-Name..." maxlength="32">
-    <button class="name-save" onclick="saveName()">✨ Loslegen!</button>
+<!-- Main UI -->
+<div id="mainUI" style="display:none;flex-direction:column;height:100%">
+
+  <div class="header">
+    <div class="header-title">✦ LUMIS ✦</div>
+    <div class="header-user" id="headerUser" onclick="resetName()">👤 —</div>
   </div>
-</div>
 
-<!-- Spawn Alert -->
-<div class="spawn-alert" id="spawnAlert">
-  <div class="rarity-badge" id="rarityBadge"></div>
-  <div class="lumi-emoji" id="lumiEmoji"></div>
-  <div class="lumi-name" id="lumiName"></div>
-  <div class="lumi-sub" id="lumiSub"></div>
-  <div class="catch-chance" id="catchChance"></div>
-  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-  <button class="catch-btn" id="catchBtn" onclick="handleCatch()">✨ FANGEN!</button>
-</div>
-
-<!-- Collection Toggle -->
-<button class="coll-toggle" onclick="toggleColl()">🫙</button>
-<div class="coll-panel" id="collPanel">
-  <div class="coll-header">
-    <div class="coll-title" id="collTitle">SAMMLUNG (0/33)</div>
-    <div class="coll-pts" id="collPts">0 pts</div>
+  <div class="spawn-zone" id="spawnZone">
+    <div id="idleState">
+      <div class="idle-icon">🌙</div>
+      <div class="idle-text">Nächstes Lumi in <span class="idle-timer" id="spawnTimer">...</span>s</div>
+    </div>
+    <div id="activeState" style="display:none">
+      <div class="lumi-row">
+        <div class="lumi-emoji-sm" id="lumiEmoji"></div>
+        <div class="lumi-details">
+          <div class="rarity-badge-sm" id="rarityBadge"></div>
+          <div class="lumi-name-sm" id="lumiName"></div>
+          <div class="lumi-pts" id="lumiPts"></div>
+          <div class="catch-chance-sm" id="catchChance"></div>
+        </div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <button class="catch-btn" id="catchBtn" onclick="handleCatch()">✨ !catch — FANGEN!</button>
+    </div>
   </div>
-  <div class="empty-coll" id="collEmpty">🫙 Noch keine Lumis!</div>
-  <div class="critter-grid" id="collGrid" style="display:none"></div>
-</div>
 
-<!-- Leaderboard Toggle -->
-<button class="lb-toggle" onclick="toggleLB()">🏆</button>
-<div class="lb-panel" id="lbPanel">
-  <div class="lb-title">TOP CATCHER</div>
-  <div id="lbList"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('chat',this)">💬 Chat</button>
+    <button class="tab-btn" onclick="switchTab('sammlung',this)">🫙 Sammlung</button>
+    <button class="tab-btn" onclick="switchTab('top',this)">🏆 Top</button>
+  </div>
+
+  <div class="panel">
+    <div id="tab-chat" class="tab-content active"><div id="chatLog"></div></div>
+    <div id="tab-sammlung" class="tab-content">
+      <div class="sec-label" id="collLabel">SAMMLUNG (0/33)</div>
+      <div class="empty" id="collEmpty">🫙<br>Noch keine Lumis!</div>
+      <div class="critter-grid" id="collGrid" style="display:none"></div>
+    </div>
+    <div id="tab-top" class="tab-content">
+      <div class="sec-label">TOP CATCHER</div>
+      <div id="lbList"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const SERVER = "https://lumis-server.onrender.com";
-const RARITY_COLORS = {common:"#95E1A3",rare:"#7B8FFF",epic:"#00D4FF",legendary:"#FFD700"};
-const CATCH_LABELS  = {common:"70%",rare:"22%",epic:"6%",legendary:"2%"};
-const CATCH_EMOJIS  = {common:"🟢",rare:"🔵",epic:"💎",legendary:"⭐"};
+const RC = {common:"#95E1A3",rare:"#7B8FFF",epic:"#00D4FF",legendary:"#FFD700"};
+const CL = {common:"70%",rare:"22%",epic:"6%",legendary:"2%"};
+const CE = {common:"🟢",rare:"🔵",epic:"💎",legendary:"⭐"};
 const LUMIS_DATA = [
   // Common
   {id:"foxlumi",      name:"Fuchsfunken",   emoji:"🦊",  rarity:"common",    color:"#FF6B35"},
@@ -320,256 +249,170 @@ const LUMIS_DATA = [
 ];
 
 let username = localStorage.getItem("lumis_name") || "";
-let currentLumi = null;
-let catchOpen = false;
-let countdown = 0;
-let countdownInterval = null;
+let currentLumi = null, catchOpen = false, countdown = 0, countdownInterval = null;
 let myCollection = {};
-let myPoints = 0;
 
-// ── Init ──
-createStars();
-if (username) {
-  document.getElementById("nameOverlay").classList.add("hidden");
-  fetchPlayerData();
-}
-startPolling();
+// Init
+if (username) startMain();
+else document.getElementById("nameScreen").classList.remove("hidden");
 
-// Twitch Extension Auth
-if (window.Twitch && window.Twitch.ext) {
-  window.Twitch.ext.onAuthorized(auth => {
-    console.log("Twitch Extension authorized");
-  });
-}
-
-function saveName() {
-  const v = document.getElementById("nameInput").value.trim();
-  if (!v) return showToast("Bitte einen Namen eingeben!","#FF4444");
+function saveNameAndStart() {
+  const v = document.getElementById("nsInput").value.trim();
+  if (!v) return;
   username = v;
   localStorage.setItem("lumis_name", username);
-  document.getElementById("nameOverlay").classList.add("hidden");
-  showToast("✅ Willkommen, " + username + "!","#86efac");
-  fetchPlayerData();
+  startMain();
 }
 
-// ── Polling ──
-function startPolling() {
+function startMain() {
+  document.getElementById("nameScreen").classList.add("hidden");
+  const main = document.getElementById("mainUI");
+  main.style.display = "flex";
+  document.getElementById("headerUser").textContent = "👤 " + username;
+  fetchPlayerData();
   fetchState();
   setInterval(fetchState, 3000);
+  addChat("✨ System", "Lumis ist live!", "system");
+}
+
+function resetName() {
+  localStorage.removeItem("lumis_name");
+  location.reload();
 }
 
 async function fetchState() {
   try {
-    const r = await fetch(`${SERVER}/api/state`);
-    const data = await r.json();
-    updateUI(data);
+    const data = await (await fetch(SERVER + "/api/state")).json();
+    if (data.leaderboard) renderLeaderboard(data.leaderboard);
+    if (data.catchOpen && data.lumi) {
+      if (!catchOpen || !currentLumi || currentLumi.id !== data.lumi.id) {
+        currentLumi = data.lumi; catchOpen = true; countdown = 20;
+        showActiveLumi(data.lumi);
+        addChat("✨ System", `${data.lumi.emoji} ${data.lumi.name} erscheint! [${data.lumi.rarity.toUpperCase()}]`, "system");
+      }
+    } else if (!data.catchOpen && catchOpen) {
+      catchOpen = false; currentLumi = null; showIdle(data.nextSpawnIn);
+    } else if (!data.catchOpen) {
+      document.getElementById("spawnTimer").textContent = data.nextSpawnIn || "...";
+    }
   } catch {}
 }
 
 async function fetchPlayerData() {
   if (!username) return;
   try {
-    const r = await fetch(`${SERVER}/api/player/${encodeURIComponent(username)}`);
-    const data = await r.json();
+    const data = await (await fetch(`${SERVER}/api/player/${encodeURIComponent(username)}`)).json();
     myCollection = data.collection || {};
-    myPoints = data.points || 0;
     renderCollection();
   } catch {}
 }
 
-function updateUI(data) {
-  renderLeaderboard(data.leaderboard || []);
-
-  if (data.catchOpen && data.lumi) {
-    if (!catchOpen || !currentLumi || currentLumi.id !== data.lumi.id) {
-      currentLumi = data.lumi;
-      catchOpen = true;
-      countdown = 20;
-      showAlert(data.lumi);
-    }
-  } else if (!data.catchOpen && catchOpen) {
-    catchOpen = false;
-    currentLumi = null;
-    hideAlert();
-  }
-}
-
-// ── Alert ──
-function showAlert(lumi) {
-  const alert = document.getElementById("spawnAlert");
-  const rc = RARITY_COLORS[lumi.rarity];
-
-  alert.className = `spawn-alert visible r-${lumi.rarity}`;
-  alert.style.setProperty("--lumi-color", lumi.color);
-
+function showActiveLumi(lumi) {
+  const zone = document.getElementById("spawnZone");
+  const rc = RC[lumi.rarity];
+  zone.style.setProperty("--ac", rc);
+  zone.style.setProperty("--ag", rc + "44");
+  zone.classList.add("active");
+  document.getElementById("idleState").style.display = "none";
+  document.getElementById("activeState").style.display = "block";
   document.getElementById("rarityBadge").textContent = lumi.rarity.toUpperCase();
   document.getElementById("rarityBadge").style.color = rc;
   document.getElementById("lumiEmoji").textContent = lumi.emoji;
+  document.getElementById("lumiEmoji").style.filter = `drop-shadow(0 0 12px ${lumi.color})`;
   document.getElementById("lumiName").textContent = lumi.name;
   document.getElementById("lumiName").style.color = lumi.color;
-  document.getElementById("lumiSub").textContent = `+${lumi.points} Punkte • 20s`;
-  document.getElementById("catchChance").innerHTML = `${CATCH_EMOJIS[lumi.rarity]} Fangchance: <strong style="color:${rc}">${CATCH_LABELS[lumi.rarity]}</strong>`;
-
+  document.getElementById("lumiPts").textContent = `+${lumi.points} Punkte`;
+  document.getElementById("catchChance").innerHTML = `${CE[lumi.rarity]} Fangchance: <strong style="color:${rc}">${CL[lumi.rarity]}</strong>`;
   const btn = document.getElementById("catchBtn");
-  btn.style.background = `linear-gradient(135deg, ${lumi.color}, ${rc})`;
-  btn.style.boxShadow = `0 4px 24px ${lumi.color}55`;
-  btn.disabled = false;
-  btn.textContent = "✨ FANGEN!";
-
+  btn.style.background = `linear-gradient(135deg,${lumi.color},${rc})`;
+  btn.style.boxShadow = `0 3px 16px ${lumi.color}44`;
+  btn.style.opacity = "1"; btn.disabled = false; btn.textContent = "✨ !catch — FANGEN!";
   document.getElementById("progressBar").style.width = "100%";
   document.getElementById("progressBar").style.background = rc;
-
-  startCountdown();
-}
-
-function hideAlert() {
-  clearInterval(countdownInterval);
-  const alert = document.getElementById("spawnAlert");
-  alert.classList.add("hiding");
-  setTimeout(() => { alert.className = "spawn-alert"; }, 350);
-}
-
-function startCountdown() {
   clearInterval(countdownInterval);
   countdownInterval = setInterval(() => {
     countdown--;
-    const pct = (countdown / 20) * 100;
-    document.getElementById("progressBar").style.width = pct + "%";
-    document.getElementById("lumiSub").textContent = `+${currentLumi?.points} Punkte • ${countdown}s`;
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      if (catchOpen) {
-        catchOpen = false; currentLumi = null;
-        hideAlert();
-        showToast("Das Lumi ist entkommen... 😢","#FF6B6B");
-      }
-    }
+    document.getElementById("progressBar").style.width = `${(countdown/20)*100}%`;
+    if (countdown <= 0) { clearInterval(countdownInterval); if(catchOpen){catchOpen=false;currentLumi=null;showIdle();addChat("✨ System","Das Lumi ist entkommen...","system");} }
   }, 1000);
 }
 
-// ── Catch ──
-async function handleCatch() {
-  if (!catchOpen || !currentLumi) return;
-  if (!username) {
-    document.getElementById("nameOverlay").classList.remove("hidden");
-    return;
-  }
-  const btn = document.getElementById("catchBtn");
-  btn.disabled = true; btn.textContent = "🎲 Würfeln...";
-
-  try {
-    const r = await fetch(`${SERVER}/api/catch`, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ username })
-    });
-    const data = await r.json();
-
-    if (data.success) {
-      const l = data.lumi;
-      showToast(`🎉 ${l.emoji} ${l.name} gefangen! +${l.points} pts!`,"#86efac");
-      myCollection[l.id] = (myCollection[l.id] || 0) + 1;
-      myPoints += l.points;
-      renderCollection();
-      clearInterval(countdownInterval);
-      catchOpen = false; currentLumi = null;
-      hideAlert(); // Lumi sofort ausblenden nach erfolgreichem Fang
-    } else if (data.reason === "no_lumi") {
-      showToast("Zu langsam — Lumi bereits weg! 😢","#FF6B6B");
-      btn.disabled = false; btn.textContent = "✨ FANGEN!";
-    } else if (data.reason === "already_tried") {
-      btn.disabled = true;
-      btn.textContent = "✋ Bereits versucht";
-      btn.style.background = "rgba(255,255,255,0.06)";
-      btn.style.boxShadow = "none";
-      showToast("Nur 1 Versuch pro Lumi! 🎲","#FF9944");
-    } else {
-      // Fehlgeschlagen — Button sperren, kein zweiter Versuch
-      btn.disabled = true;
-      btn.textContent = "❌ Entkommen...";
-      btn.style.background = "rgba(255,80,80,0.12)";
-      btn.style.boxShadow = "none";
-      showToast(`❌ Entkommen! (${data.roll}% > ${data.needed}% nötig) — Kein zweiter Versuch!`,"#FF6B6B");
-    }
-  } catch {
-    btn.disabled = false; btn.textContent = "✨ FANGEN!";
-    showToast("Server nicht erreichbar","#FF4444");
-  }
+function showIdle(timer) {
+  clearInterval(countdownInterval);
+  const zone = document.getElementById("spawnZone");
+  zone.classList.remove("active");
+  document.getElementById("idleState").style.display = "block";
+  document.getElementById("activeState").style.display = "none";
+  if (timer !== undefined) document.getElementById("spawnTimer").textContent = timer;
 }
 
-// ── Collection ──
-function toggleColl() {
-  const p = document.getElementById("collPanel");
-  p.classList.toggle("open");
-  if (p.classList.contains("open")) fetchPlayerData();
-  document.getElementById("lbPanel").classList.remove("open");
+async function handleCatch() {
+  if (!catchOpen || !currentLumi) return;
+  const btn = document.getElementById("catchBtn");
+  btn.disabled = true; btn.textContent = "🎲 Würfeln...";
+  try {
+    const data = await (await fetch(SERVER + "/api/catch", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({username})
+    })).json();
+    if (data.success) {
+      const l = data.lumi;
+      showToast(`🎉 ${l.emoji} ${l.name} gefangen! +${l.points} pts!`, "#86efac");
+      addChat(username, `hat ${l.emoji} ${l.name} gefangen! +${l.points} pts 🎉`, "catch");
+      myCollection[l.id] = (myCollection[l.id]||0)+1;
+      renderCollection(); clearInterval(countdownInterval);
+      catchOpen = false; currentLumi = null; showIdle();
+    } else if (data.reason==="already_tried") {
+      btn.disabled=true; btn.textContent="✋ Bereits versucht";
+      btn.style.background="rgba(255,255,255,0.05)"; btn.style.boxShadow="none";
+      showToast("Nur 1 Versuch pro Lumi!","#FF9944");
+    } else if (data.reason==="no_lumi") {
+      btn.disabled=false; btn.textContent="✨ !catch — FANGEN!";
+      showToast("Zu langsam! 😢","#FF6B6B");
+    } else {
+      btn.disabled=true; btn.textContent="❌ Entkommen...";
+      btn.style.background="rgba(255,80,80,0.1)"; btn.style.boxShadow="none";
+      addChat(username, `!catch — Entkommen (${data.roll}% > ${data.needed}%)`, "normal");
+      showToast(`❌ Entkommen! (${data.roll}% > ${data.needed}%)`, "#FF6B6B");
+    }
+  } catch { btn.disabled=false; btn.textContent="✨ !catch — FANGEN!"; }
 }
 
 function renderCollection() {
   const owned = LUMIS_DATA.filter(l => myCollection[l.id]);
-  document.getElementById("collTitle").textContent = `SAMMLUNG (${owned.length}/33)`;
-  document.getElementById("collPts").textContent = `${myPoints} pts`;
-
-  if (owned.length === 0) {
-    document.getElementById("collEmpty").style.display = "block";
-    document.getElementById("collGrid").style.display = "none";
-    return;
-  }
-  document.getElementById("collEmpty").style.display = "none";
-  const grid = document.getElementById("collGrid");
-  grid.style.display = "grid";
-  grid.innerHTML = owned.map(l => `
-    <div class="critter-card" style="border-color:${RARITY_COLORS[l.rarity]}33">
-      <div class="cc-emoji">${l.emoji}</div>
-      <div class="cc-name">${l.name}</div>
-      <div class="cc-count" style="color:${RARITY_COLORS[l.rarity]}">×${myCollection[l.id]}</div>
-    </div>`).join("");
-}
-
-// ── Leaderboard ──
-function toggleLB() {
-  const p = document.getElementById("lbPanel");
-  p.classList.toggle("open");
-  document.getElementById("collPanel").classList.remove("open");
+  document.getElementById("collLabel").textContent = `SAMMLUNG (${owned.length}/33)`;
+  if (!owned.length) { document.getElementById("collEmpty").style.display="block"; document.getElementById("collGrid").style.display="none"; return; }
+  document.getElementById("collEmpty").style.display="none";
+  const grid = document.getElementById("collGrid"); grid.style.display="grid";
+  grid.innerHTML = owned.map(l=>`<div class="critter-card" style="border-color:${RC[l.rarity]}33"><div class="cc-emoji">${l.emoji}</div><div class="cc-name">${l.name}</div><div class="cc-count" style="color:${RC[l.rarity]}">×${myCollection[l.id]}</div></div>`).join("");
 }
 
 function renderLeaderboard(lb) {
-  const rankColors = ["#FFD700","#C0C0C0","#CD7F32"];
-  document.getElementById("lbList").innerHTML = lb.length === 0
-    ? `<div style="color:#3a2d5a;font-size:11px;text-align:center;padding:10px">Noch keine Daten</div>`
-    : lb.map((p, i) => `
-      <div class="lb-row ${p.username===username?'me':''}">
-        <div class="lb-rank" style="color:${rankColors[i]||'#3a2d5a'}">#${i+1}</div>
-        <div class="lb-name ${p.username===username?'me':''}">${p.username}</div>
-        <div class="lb-pts">${p.points}</div>
-      </div>`).join("");
+  const rankColors=["#FFD700","#C0C0C0","#CD7F32"];
+  document.getElementById("lbList").innerHTML = (!lb||!lb.length)
+    ? `<div class="empty">Noch keine Daten</div>`
+    : lb.map((p,i)=>`<div class="lb-row ${p.username===username?'me':''}"><div class="lb-rank" style="color:${rankColors[i]||'#3a2d5a'}">#${i+1}</div><div class="lb-name ${p.username===username?'me':''}">${p.username}</div><div class="lb-pts">${p.points} pts</div></div>`).join("");
 }
 
-// ── Toast ──
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active"); btn.classList.add("active");
+  if(name==="sammlung") fetchPlayerData();
+}
+
+function addChat(user, msg, type="normal") {
+  const log = document.getElementById("chatLog");
+  const div = document.createElement("div"); div.className="chat-msg";
+  div.innerHTML=`<span class="cu cu-${type}">${user}</span><span class="ct-${type==='catch'?'normal':type}">${msg}</span>`;
+  log.appendChild(div); while(log.children.length>30)log.removeChild(log.firstChild); log.scrollTop=log.scrollHeight;
+}
+
 function showToast(msg, color="#86efac") {
-  const old = document.querySelector(".toast");
-  if (old) old.remove();
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  t.style.background = color + "22";
-  t.style.color = color;
-  t.style.borderColor = color + "44";
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
-}
-
-// ── Stars ──
-function createStars() {
-  for (let i = 0; i < 50; i++) {
-    const s = document.createElement("div");
-    s.className = "star";
-    s.style.left = Math.random()*100+"vw";
-    s.style.top = Math.random()*100+"vh";
-    s.style.setProperty("--d",(2+Math.random()*4)+"s");
-    s.style.setProperty("--delay",(Math.random()*4)+"s");
-    document.getElementById("bgStars").appendChild(s);
-  }
+  const old=document.querySelector(".toast"); if(old)old.remove();
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  t.style.background=color+"22"; t.style.color=color; t.style.borderColor=color+"44";
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2400);
 }
 </script>
 </body>
