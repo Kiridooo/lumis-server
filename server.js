@@ -195,10 +195,14 @@ const server = http.createServer(async (req, res) => {
     if (parsed.query.key !== "lumis2026") return sendJSON(res, { error: "unauthorized" }, 401);
     try {
       const before = await pool.query("SELECT username, points FROM players ORDER BY points DESC");
-      await pool.query("DELETE FROM players WHERE username = 'undefined' OR username = '' OR username IS NULL");
+      if (parsed.query.reset === "all") {
+        await pool.query("DELETE FROM players");
+      } else {
+        await pool.query("DELETE FROM players WHERE username = 'undefined' OR username = '' OR username IS NULL");
+      }
       const after = await pool.query("SELECT username, points FROM players ORDER BY points DESC");
       sendJSON(res, {
-        message: "Cleanup done!",
+        message: parsed.query.reset === "all" ? "Alle Einträge gelöscht!" : "Cleanup done!",
         before: before.rows,
         after: after.rows
       });
