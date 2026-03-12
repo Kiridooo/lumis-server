@@ -3,466 +3,403 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>✨ Lumis</title>
+<title>Stream Critter</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Rajdhani:wght@700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg1:#0e0b1a;--bg2:#13102a;
-  --purple:#7B2FBE;--cyan:#00D4FF;--gold:#FFD700;
-  --common:#95E1A3;--rare:#7B8FFF;--epic:#00D4FF;--legendary:#FFD700;
-}
-body{
-  min-height:100vh;
-  background:radial-gradient(ellipse at top,#1a1035 0%,#0e0b1a 60%);
-  font-family:'Nunito',sans-serif;
-  color:#e8e0ff;
-  display:flex;flex-direction:column;align-items:center;
-  padding:16px;gap:14px;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Inter:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 50%, #0a0a1a 100%);
+    font-family: 'Inter', sans-serif;
+    color: #e0e0ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 16px;
+  }
+  .header { text-align: center; }
+  .title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #7B2FBE, #00D4FF, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { font-size: 11px; color: #888; letter-spacing: 3px; margin-top: 2px; }
 
-/* ── Header ── */
-.header{text-align:center;margin-bottom:2px}
-.title{
-  font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;
-  background:linear-gradient(90deg,#c084fc,#67e8f9,#fde68a);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  letter-spacing:3px;
-}
-.subtitle{font-size:10px;color:#6b5f8a;letter-spacing:4px;margin-top:1px}
+  .spawn-zone {
+    width: 100%; max-width: 420px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    min-height: 160px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .spawn-zone.active { border-color: var(--rarity-color); box-shadow: 0 0 30px var(--rarity-glow); }
 
-/* ── Spawn Zone ── */
-.spawn-zone{
-  width:100%;max-width:400px;
-  background:linear-gradient(135deg,rgba(123,47,190,0.08),rgba(0,212,255,0.05));
-  border:1.5px solid rgba(255,255,255,0.08);
-  border-radius:20px;padding:22px 16px;
-  text-align:center;position:relative;
-  min-height:180px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-  transition:all 0.4s;
-}
-.spawn-zone.active{
-  border-color:var(--active-color,#7B2FBE);
-  box-shadow:0 0 40px var(--active-glow,rgba(123,47,190,0.3));
-}
-.stars{position:absolute;inset:0;border-radius:18px;overflow:hidden;pointer-events:none}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:twinkle var(--d,3s) var(--delay,0s) infinite}
-@keyframes twinkle{0%,100%{opacity:0;transform:scale(1)}50%{opacity:0.6;transform:scale(1.5)}}
+  .rarity-label { font-size: 11px; letter-spacing: 3px; font-weight: 700; }
+  .critter-emoji { font-size: 64px; line-height: 1; animation: bob 1s ease-in-out infinite; }
+  .critter-name { font-size: 20px; font-weight: 800; }
+  .critter-info { font-size: 12px; color: #aaa; }
+  .progress-bar { width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 1s linear; }
 
-.rarity-badge{
-  font-size:10px;letter-spacing:3px;font-weight:900;
-  padding:3px 10px;border-radius:20px;
-  background:rgba(255,255,255,0.06);border:1px solid currentColor;
-}
-.lumi-emoji{font-size:68px;line-height:1;transition:filter 0.3s}
-.lumi-name{font-size:22px;font-weight:900;letter-spacing:1px}
-.lumi-info{font-size:11px;color:#9d8fc0}
-.catch-chance{font-size:11px;margin-top:-4px}
+  .catch-btn {
+    padding: 12px 32px;
+    border: none; border-radius: 10px;
+    color: #fff; font-weight: 900; font-size: 15px;
+    cursor: pointer; letter-spacing: 1px;
+    transition: transform 0.1s;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .catch-btn:active { transform: scale(0.95); }
 
-.progress-wrap{width:180px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.progress-bar{height:100%;border-radius:3px;transition:width 1s linear}
+  .idle { color: #555; }
+  .idle-icon { font-size: 40px; margin-bottom: 8px; }
+  .idle-text { font-size: 13px; }
+  .idle-sub { font-size: 11px; margin-top: 4px; color: #444; }
 
-.catch-btn{
-  padding:11px 28px;
-  border:none;border-radius:12px;
-  color:#fff;font-weight:900;font-size:14px;font-family:'Nunito',sans-serif;
-  cursor:pointer;letter-spacing:1px;
-  transition:transform 0.1s,box-shadow 0.2s;
-  position:relative;overflow:hidden;
-}
-.catch-btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
-}
-.catch-btn:hover{transform:scale(1.04)}
-.catch-btn:active{transform:scale(0.96)}
+  .catch-effect {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px;
+    font-size: 60px;
+    pointer-events: none;
+    z-index: 10;
+    animation: celebrate 0.5s ease-out forwards;
+  }
 
-.idle-icon{font-size:36px;margin-bottom:6px;filter:grayscale(0.3)}
-.idle-text{font-size:13px;color:#6b5f8a}
-.idle-timer{color:#a78bfa;font-weight:900}
+  .tabs { display: flex; gap: 8px; width: 100%; max-width: 420px; }
+  .tab-btn {
+    flex: 1; padding: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: #666;
+    font-weight: 700; font-size: 11px;
+    cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+    transition: all 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .tab-btn.active { background: rgba(123,47,190,0.4); border-color: #7B2FBE; color: #e0e0ff; }
 
-/* username input */
-.name-row{
-  display:flex;gap:8px;width:100%;max-width:400px;
-  align-items:center;
-}
-.name-input{
-  flex:1;padding:9px 14px;
-  background:rgba(255,255,255,0.05);
-  border:1.5px solid rgba(255,255,255,0.1);
-  border-radius:10px;color:#e8e0ff;font-family:'Nunito',sans-serif;font-size:13px;
-  outline:none;transition:border-color 0.2s;
-}
-.name-input:focus{border-color:#7B2FBE}
-.name-input::placeholder{color:#4a4060}
-.name-save{
-  padding:9px 16px;background:rgba(123,47,190,0.4);
-  border:1.5px solid #7B2FBE;border-radius:10px;
-  color:#e8e0ff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
-  cursor:pointer;transition:background 0.2s;
-}
-.name-save:hover{background:rgba(123,47,190,0.6)}
+  .panel {
+    width: 100%; max-width: 420px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    min-height: 220px;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-/* ── Tabs ── */
-.tabs{display:flex;gap:6px;width:100%;max-width:400px}
-.tab-btn{
-  flex:1;padding:8px 4px;
-  background:rgba(255,255,255,0.03);
-  border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:10px;color:#5a5070;
-  font-weight:900;font-size:11px;font-family:'Nunito',sans-serif;
-  cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;
-}
-.tab-btn.active{background:rgba(123,47,190,0.25);border-color:rgba(123,47,190,0.6);color:#d8b4fe}
+  /* Chat */
+  .chat-log {
+    height: 260px; overflow-y: auto;
+    padding: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .chat-log::-webkit-scrollbar { width: 4px; }
+  .chat-log::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  .chat-msg { font-size: 12px; line-height: 1.5; }
+  .chat-user { font-weight: 700; margin-right: 6px; }
+  .chat-user.system { color: #7B2FBE; }
+  .chat-user.success { color: #95E1A3; }
+  .chat-user.catch { color: #FFD700; }
+  .chat-user.normal { color: #00D4FF; }
+  .chat-text.system { color: #aaa; }
+  .chat-text.normal { color: #ccc; }
 
-/* ── Panel ── */
-.panel{
-  width:100%;max-width:400px;
-  background:rgba(255,255,255,0.025);
-  border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:16px;overflow:hidden;min-height:230px;
-}
-.tab-content{display:none}
-.tab-content.active{display:block}
+  /* Collection */
+  .collection-panel { padding: 16px; }
+  .section-label { font-size: 11px; color: #666; margin-bottom: 12px; letter-spacing: 2px; }
+  .empty-state { text-align: center; color: #444; padding: 30px 0; }
+  .empty-icon { font-size: 30px; }
+  .empty-text { font-size: 12px; margin-top: 8px; }
+  .critter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .critter-card {
+    text-align: center;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px; padding: 10px 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .critter-card-emoji { font-size: 28px; }
+  .critter-card-name { font-size: 9px; color: #aaa; margin-top: 2px; }
+  .critter-card-count { font-size: 10px; font-weight: 700; }
 
-/* Chat */
-.chat-log{
-  height:260px;overflow-y:auto;
-  padding:12px;display:flex;flex-direction:column;gap:3px;
-}
-.chat-log::-webkit-scrollbar{width:3px}
-.chat-log::-webkit-scrollbar-thumb{background:#3a2d5a;border-radius:2px}
-.chat-msg{font-size:12px;line-height:1.6}
-.cu{font-weight:900;margin-right:5px}
-.cu-system{color:#a78bfa}.cu-success{color:#86efac}.cu-catch{color:#fde68a}.cu-normal{color:#67e8f9}
-.ct-system{color:#6b5f8a}.ct-normal{color:#b0a0d0}
+  /* Leaderboard */
+  .lb-panel { padding: 16px; }
+  .lb-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid transparent;
+  }
+  .lb-row.me { background: rgba(123,47,190,0.2); border-color: rgba(123,47,190,0.3); }
+  .lb-rank { width: 20px; font-weight: 900; font-size: 12px; }
+  .lb-name { flex: 1; font-size: 13px; color: #aaa; }
+  .lb-name.me { color: #e0e0ff; font-weight: 700; }
+  .lb-pts { font-size: 12px; color: #FFD700; font-weight: 700; }
 
-/* Collection */
-.coll-panel{padding:14px}
-.sec-label{font-size:10px;color:#5a5070;margin-bottom:10px;letter-spacing:2px}
-.empty{text-align:center;color:#3a2d5a;padding:28px 0}
-.empty-icon{font-size:28px;margin-bottom:6px}
-.critter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.critter-card{
-  text-align:center;
-  background:rgba(255,255,255,0.03);
-  border-radius:12px;padding:10px 4px;
-  border:1px solid rgba(255,255,255,0.05);
-  transition:transform 0.2s;
-}
-.critter-card:hover{transform:scale(1.05)}
-.cc-emoji{font-size:26px}
-.cc-name{font-size:8px;color:#7a6d9a;margin-top:2px}
-.cc-count{font-size:10px;font-weight:900;margin-top:1px}
+  .footer { font-size: 10px; color: #333; letter-spacing: 2px; text-align: center; }
 
-/* Leaderboard */
-.lb-panel{padding:14px}
-.lb-row{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;margin-bottom:4px;
-  background:rgba(255,255,255,0.02);
-  border-radius:10px;border:1px solid transparent;
-  transition:background 0.2s;
-}
-.lb-row.me{background:rgba(123,47,190,0.15);border-color:rgba(123,47,190,0.3)}
-.lb-rank{width:22px;font-size:12px;font-weight:900}
-.lb-name{flex:1;font-size:12px;color:#9d8fc0}
-.lb-name.me{color:#e8e0ff;font-weight:900}
-.lb-pts{font-size:12px;color:#fde68a;font-weight:900}
-
-.footer{font-size:9px;color:#2a2040;letter-spacing:2px;text-align:center}
-
-/* Result toast */
-.toast{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  padding:12px 24px;border-radius:12px;
-  font-weight:900;font-size:14px;font-family:'Nunito',sans-serif;
-  animation:toastIn 0.3s ease,toastOut 0.3s ease 2s forwards;
-  z-index:99;pointer-events:none;
-  border:1.5px solid rgba(255,255,255,0.15);
-}
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
-
-@keyframes bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.03)}}
-@keyframes bobSlow{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes celebrate { 0% { opacity: 1; transform: scale(1); background: rgba(255,215,0,0.1); } 100% { opacity: 0; transform: scale(1.05); } }
 </style>
 </head>
 <body>
 
-<!-- Stars BG -->
-<div id="bgStars" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden"></div>
-
-<div style="position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px">
-
 <div class="header">
-  <div class="title">✦ L U M I S ✦</div>
-  <div class="subtitle">TWITCH COLLECTOR</div>
+  <div class="title">✦ STREAM CRITTER ✦</div>
+  <div class="subtitle">TWITCH COLLECTOR GAME</div>
 </div>
 
-<!-- Username -->
-<div class="name-row">
-  <input class="name-input" id="nameInput" placeholder="Dein Twitch-Name..." maxlength="32">
-  <button class="name-save" onclick="saveName()">✓ Speichern</button>
-</div>
-
-<!-- Spawn Zone -->
 <div class="spawn-zone" id="spawnZone">
-  <div class="stars" id="spawnStars"></div>
-  <div id="idleState">
-    <div class="idle-icon">🌙</div>
-    <div class="idle-text">Nächstes Lumi in <span class="idle-timer" id="spawnTimer">...</span>s</div>
-    <div style="font-size:10px;color:#3a2d5a;margin-top:4px">Tippe !catch wenn ein Lumi erscheint</div>
+  <div class="idle" id="idleState">
+    <div class="idle-icon">🌿</div>
+    <div class="idle-text">Nächster Spawn in <span id="spawnCountdown" style="color:#7B2FBE;font-weight:700">...</span>s</div>
+    <div class="idle-sub">Im Chat: !catch wenn ein Critter erscheint</div>
   </div>
-  <div id="activeState" style="display:none;flex-direction:column;align-items:center;gap:10px">
-    <div class="rarity-badge" id="rarityBadge"></div>
-    <div class="lumi-emoji" id="lumiEmoji" style="animation:bob 1.2s ease-in-out infinite"></div>
-    <div class="lumi-name" id="lumiName"></div>
-    <div class="lumi-info" id="lumiInfo"></div>
-    <div class="catch-chance" id="catchChance"></div>
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-    <button class="catch-btn" id="catchBtn" onclick="handleCatch()">✨ !catch — FANGEN!</button>
+  <div id="activeState" style="display:none; flex-direction:column; align-items:center; gap:10px;">
+    <div class="rarity-label" id="rarityLabel"></div>
+    <div class="critter-emoji" id="critterEmoji"></div>
+    <div class="critter-name" id="critterName"></div>
+    <div class="critter-info" id="critterInfo"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <button class="catch-btn" id="catchBtn" onclick="handleCatch()">!catch — FANGEN!</button>
   </div>
 </div>
 
-<!-- Tabs -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('live',this)">💬 Chat</button>
-  <button class="tab-btn" onclick="switchTab('sammlung',this)">🫙 Sammlung</button>
-  <button class="tab-btn" onclick="switchTab('rangliste',this)">🏆 Top</button>
+  <button class="tab-btn active" onclick="switchTab('live', this)">💬 Chat</button>
+  <button class="tab-btn" onclick="switchTab('sammlung', this)">📦 Sammlung</button>
+  <button class="tab-btn" onclick="switchTab('rangliste', this)">🏆 Top</button>
 </div>
 
-<!-- Panel -->
 <div class="panel">
   <div id="tab-live" class="tab-content active">
     <div class="chat-log" id="chatLog"></div>
   </div>
   <div id="tab-sammlung" class="tab-content">
-    <div class="coll-panel">
-      <div class="sec-label" id="collLabel">DEINE SAMMLUNG (0/11)</div>
-      <div class="empty" id="collEmpty"><div class="empty-icon">🫙</div><div>Noch keine Lumis gefangen!</div></div>
-      <div class="critter-grid" id="collGrid" style="display:none"></div>
+    <div class="collection-panel">
+      <div class="section-label" id="collLabel">DEINE SAMMLUNG (0/9)</div>
+      <div id="collEmpty" class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Noch keine Critter gefangen!</div></div>
+      <div id="collGrid" class="critter-grid" style="display:none"></div>
     </div>
   </div>
   <div id="tab-rangliste" class="tab-content">
     <div class="lb-panel">
-      <div class="sec-label">TOP CATCHER</div>
+      <div class="section-label">TOP CATCHER</div>
       <div id="lbList"></div>
     </div>
   </div>
 </div>
 
-<div class="footer">LUMIS • COMMON › RARE › EPIC › LEGENDARY</div>
-
-</div>
+<div class="footer">CHAT-BEFEHL: !catch • SELTENHEIT: COMMON › RARE › EPIC › LEGENDARY</div>
 
 <script>
-const RARITY_COLORS = {common:"#95E1A3",rare:"#7B8FFF",epic:"#00D4FF",legendary:"#FFD700"};
-const CATCH_LABELS  = {common:"70%",rare:"22%",epic:"6%",legendary:"2%"};
-const CATCH_EMOJIS  = {common:"🟢",rare:"🔵",epic:"💎",legendary:"⭐"};
-const TOTAL_LUMIS = 11;
-let username = localStorage.getItem("lumis_name") || "";
-let pollInterval = null;
-let countdownInterval = null;
-let currentLumi = null;
-let catchOpen = false;
-let countdown = 0;
-let myCollection = {};
+const CRITTERS = [
+  { id:"foxling",     name:"Foxling",     emoji:"🦊", rarity:"common",    color:"#FF6B35", points:10  },
+  { id:"moonbun",     name:"Moonbun",     emoji:"🐰", rarity:"common",    color:"#A8D8EA", points:10  },
+  { id:"glowfrog",    name:"Glowfrog",    emoji:"🐸", rarity:"common",    color:"#95E1A3", points:15  },
+  { id:"stardust",    name:"Stardust",    emoji:"✨", rarity:"rare",      color:"#FFD700", points:50  },
+  { id:"crystalwolf", name:"Crystalwolf", emoji:"🐺", rarity:"rare",      color:"#B8A9FF", points:60  },
+  { id:"shadowcat",   name:"Shadowcat",   emoji:"🐈‍⬛", rarity:"rare",    color:"#6C63FF", points:70  },
+  { id:"phoenixbird", name:"Phoenix",     emoji:"🔥", rarity:"legendary", color:"#FF4444", points:200 },
+  { id:"moondragon",  name:"Moondragon",  emoji:"🐉", rarity:"legendary", color:"#7B2FBE", points:300 },
+  { id:"cosmicjelly", name:"Cosmicjelly", emoji:"🪼", rarity:"epic",      color:"#00D4FF", points:120 },
+];
+const RARITY_WEIGHTS = { common:60, rare:25, epic:10, legendary:5 };
+const RARITY_COLORS  = { common:"#95E1A3", rare:"#6C63FF", epic:"#00D4FF", legendary:"#FFD700" };
+const FAKE_VIEWERS   = ["StreamerPal42","NightOwl_TV","xX_Gamer_Xx","CuriousCat99","PixelQueen","LootGoblin","Vexx_Dev","StarChaser"];
+const YOUR_NAME = "YOU";
+const SERVER = ""; // empty = same origin (served from render)
 
-// ── Init ──
-if (username) document.getElementById("nameInput").value = username;
-createBgStars();
-addChat("✨ System","Lumis ist live! Warte auf das nächste Lumi...","system");
-startPolling();
-
-function saveName() {
-  const v = document.getElementById("nameInput").value.trim();
-  if (!v) return showToast("❌ Bitte einen Namen eingeben!","#FF4444");
-  username = v;
-  localStorage.setItem("lumis_name", username);
-  showToast("✅ Name gespeichert: " + username,"#86efac");
-  fetchPlayerData();
-}
-
-// ── Polling ──
-function startPolling() {
-  fetchState();
-  pollInterval = setInterval(fetchState, 3000);
-}
-
-async function fetchState() {
+// Poll server every 3 seconds
+async function fetchServerState() {
   try {
-    const r = await fetch("/api/state");
+    const r = await fetch(`${SERVER}/api/state`);
     const data = await r.json();
-    updateUI(data);
-  } catch { /* server offline */ }
-}
-
-async function fetchPlayerData() {
-  if (!username) return;
-  try {
-    const r = await fetch(`/api/player/${encodeURIComponent(username)}`);
-    const data = await r.json();
-    myCollection = data.collection || {};
-    renderCollection();
+    if (data.leaderboard) renderLeaderboard(data.leaderboard);
+    // sync lumi state
+    if (data.catchOpen && data.lumi) {
+      if (!catchOpen || !activeCritter || activeCritter.id !== data.lumi.id) {
+        activeCritter = data.lumi;
+        catchOpen = true;
+        countdown = 20;
+        showActiveLumi(data.lumi);
+        addChat("🎮 System", `Ein wildes ${data.lumi.emoji} ${data.lumi.name} erscheint! [${data.lumi.rarity.toUpperCase()}]`, "system");
+      }
+    } else if (!data.catchOpen && catchOpen) {
+      catchOpen = false; activeCritter = null;
+      hideSpawnZone();
+    } else if (!data.catchOpen) {
+      document.getElementById("spawnCountdown").textContent = data.nextSpawnIn || "...";
+    }
   } catch {}
 }
+setInterval(fetchServerState, 3000);
+setTimeout(fetchServerState, 500);
 
-function updateUI(data) {
-  // Leaderboard
-  renderLeaderboard(data.leaderboard || []);
+let activeCritter = null;
+let catchOpen = false;
+let countdown = 0;
+let collection = {};
+let leaderboard = {};
+let countdownInterval = null;
+let spawnTimeout = null;
+let spawnCountdown = 0;
+let spawnCountInterval = null;
 
-  if (data.catchOpen && data.lumi) {
-    if (!catchOpen || !currentLumi || currentLumi.id !== data.lumi.id) {
-      // New lumi appeared
-      currentLumi = data.lumi;
-      catchOpen = true;
-      countdown = 20;
-      showActiveLumi(data.lumi);
-      addChat("✨ System", `Ein wildes ${data.lumi.emoji} ${data.lumi.name} erscheint! [${data.lumi.rarity.toUpperCase()}] Fangchance: ${CATCH_LABELS[data.lumi.rarity]}`, "system");
-    }
-  } else if (!data.catchOpen && catchOpen) {
-    catchOpen = false;
-    currentLumi = null;
-    showIdle(data.nextSpawnIn);
-  } else if (!data.catchOpen) {
-    document.getElementById("spawnTimer").textContent = data.nextSpawnIn || "...";
-  }
-}
-
-// ── Countdown ──
-function startCountdown() {
-  clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    countdown--;
-    const pct = (countdown / 20) * 100;
-    document.getElementById("progressBar").style.width = pct + "%";
-    document.getElementById("lumiInfo").textContent = `+${currentLumi?.points} Punkte • ${countdown}s`;
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      if (catchOpen) {
-        catchOpen = false;
-        currentLumi = null;
-        showIdle();
-        addChat("✨ System","Das Lumi ist entkommen... 😢","system");
-      }
-    }
-  }, 1000);
-}
-
-// ── Catch ──
-async function handleCatch() {
-  if (!catchOpen || !currentLumi) return showToast("Kein Lumi aktiv!","#FF4444");
-  if (!username) return showToast("Bitte zuerst Namen eingeben!","#FFD700");
-
-  const btn = document.getElementById("catchBtn");
-  btn.disabled = true; btn.textContent = "🎲 Würfeln...";
-
-  try {
-    const r = await fetch("/api/catch", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ username })
-    });
-    const data = await r.json();
-
-    if (data.success) {
-      const l = data.lumi;
-      showToast(`🎉 ${l.emoji} ${l.name} gefangen! +${l.points} Punkte!`, "#86efac");
-      addChat(username, `hat ${l.emoji} ${l.name} gefangen! +${l.points} pts 🎉`, "catch");
-      myCollection[l.id] = (myCollection[l.id] || 0) + 1;
-      renderCollection();
-      clearInterval(countdownInterval);
-      catchOpen = false; currentLumi = null;
-      showIdle();
-    } else {
-      if (data.reason === "no_lumi") {
-        showToast("Zu langsam! Das Lumi ist weg 😢","#FF6B6B");
-      } else {
-        showToast(`❌ Entkommen! (${data.roll}% > ${data.needed}% nötig)`, "#FF6B6B");
-        addChat(username, `!catch — Lumi entkommen... (${data.roll}% > ${data.needed}%)`, "normal");
-      }
-      btn.disabled = false; btn.textContent = "✨ !catch — FANGEN!";
-    }
-  } catch {
-    btn.disabled = false; btn.textContent = "✨ !catch — FANGEN!";
-    showToast("Server nicht erreichbar","#FF4444");
-  }
-}
-
-// ── UI Helpers ──
-function showActiveLumi(lumi) {
-  const zone = document.getElementById("spawnZone");
-  const rc = RARITY_COLORS[lumi.rarity];
-  zone.style.setProperty("--active-color", rc);
-  zone.style.setProperty("--active-glow", rc + "44");
-  zone.classList.add("active");
-
-  document.getElementById("idleState").style.display = "none";
-  const as = document.getElementById("activeState");
-  as.style.display = "flex";
-
-  const badge = document.getElementById("rarityBadge");
-  badge.textContent = lumi.rarity.toUpperCase();
-  badge.style.color = rc;
-
-  document.getElementById("lumiEmoji").textContent = lumi.emoji;
-  document.getElementById("lumiEmoji").style.filter = `drop-shadow(0 0 24px ${lumi.color})`;
-  document.getElementById("lumiName").textContent = lumi.name;
-  document.getElementById("lumiName").style.color = lumi.color;
-  document.getElementById("lumiInfo").textContent = `+${lumi.points} Punkte • 20s`;
-  document.getElementById("catchChance").innerHTML = `${CATCH_EMOJIS[lumi.rarity]} Fangchance: <strong style="color:${rc}">${CATCH_LABELS[lumi.rarity]}</strong>`;
-
-  const btn = document.getElementById("catchBtn");
-  btn.style.background = `linear-gradient(135deg, ${lumi.color}, ${rc})`;
-  btn.style.boxShadow = `0 4px 24px ${lumi.color}55`;
-  btn.disabled = false;
-  btn.textContent = "✨ !catch — FANGEN!";
-
-  document.getElementById("progressBar").style.width = "100%";
-  document.getElementById("progressBar").style.background = rc;
-
-  startCountdown();
-}
-
-function showIdle(timer) {
-  clearInterval(countdownInterval);
-  const zone = document.getElementById("spawnZone");
-  zone.classList.remove("active");
-  zone.style.removeProperty("--active-color");
-  zone.style.removeProperty("--active-glow");
-  document.getElementById("idleState").style.display = "block";
-  document.getElementById("activeState").style.display = "none";
-  if (timer !== undefined) document.getElementById("spawnTimer").textContent = timer;
+function randCritter() {
+  const roll = Math.random() * 100;
+  let cum = 0, tier = "common";
+  for (const [r, w] of Object.entries(RARITY_WEIGHTS)) { cum += w; if (roll < cum) { tier = r; break; } }
+  const pool = CRITTERS.filter(c => c.rarity === tier);
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function addChat(user, msg, type="normal") {
   const log = document.getElementById("chatLog");
   const div = document.createElement("div");
   div.className = "chat-msg";
-  div.innerHTML = `<span class="cu cu-${type}">${user}</span><span class="ct-${type === 'success' || type === 'catch' ? 'normal' : type}">${msg}</span>`;
+  div.innerHTML = `<span class="chat-user ${type}">${user}</span><span class="chat-text ${type === 'success' ? 'normal' : type}">${msg}</span>`;
   log.appendChild(div);
-  while (log.children.length > 40) log.removeChild(log.firstChild);
+  while (log.children.length > 35) log.removeChild(log.firstChild);
   log.scrollTop = log.scrollHeight;
 }
 
+function showSpawnZone(critter) {
+  const zone = document.getElementById("spawnZone");
+  zone.style.setProperty("--rarity-color", RARITY_COLORS[critter.rarity]);
+  zone.style.setProperty("--rarity-glow", RARITY_COLORS[critter.rarity] + "44");
+  zone.classList.add("active");
+  document.getElementById("idleState").style.display = "none";
+  const as = document.getElementById("activeState");
+  as.style.display = "flex";
+  document.getElementById("rarityLabel").textContent = critter.rarity.toUpperCase() + " CRITTER APPEARED!";
+  document.getElementById("rarityLabel").style.color = RARITY_COLORS[critter.rarity];
+  document.getElementById("critterEmoji").textContent = critter.emoji;
+  document.getElementById("critterEmoji").style.filter = `drop-shadow(0 0 20px ${critter.color})`;
+  document.getElementById("critterName").textContent = critter.name;
+  document.getElementById("critterName").style.color = critter.color;
+  const btn = document.getElementById("catchBtn");
+  btn.style.background = `linear-gradient(135deg, ${critter.color}, ${RARITY_COLORS[critter.rarity]})`;
+  btn.style.boxShadow = `0 4px 20px ${critter.color}66`;
+  updateProgress(15, 15);
+}
+
+function hideSpawnZone() {
+  document.getElementById("spawnZone").classList.remove("active");
+  document.getElementById("spawnZone").style.cssText = "";
+  document.getElementById("idleState").style.display = "block";
+  document.getElementById("activeState").style.display = "none";
+}
+
+function updateProgress(cur, max) {
+  document.getElementById("progressFill").style.width = `${(cur/max)*100}%`;
+  document.getElementById("progressFill").style.background = activeCritter ? RARITY_COLORS[activeCritter.rarity] : "#fff";
+  document.getElementById("critterInfo").textContent = `+${activeCritter.points} Punkte • ${cur}s verbleibend`;
+}
+
+function spawnCritter() {
+  clearInterval(spawnCountInterval);
+  activeCritter = randCritter();
+  catchOpen = true;
+  countdown = 15;
+  showSpawnZone(activeCritter);
+  addChat("🎮 System", `A wild ${activeCritter.emoji} ${activeCritter.name} appeared! [${activeCritter.rarity.toUpperCase()}] Type !catch to grab it!`, "system");
+
+  countdownInterval = setInterval(() => {
+    countdown--;
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      const name = activeCritter.name;
+      catchOpen = false; activeCritter = null;
+      hideSpawnZone();
+      addChat("🎮 System", `The ${name} ran away... 😢`, "system");
+      scheduleNext();
+      return;
+    }
+    updateProgress(countdown, 15);
+    // fake catch at ~10s
+    if (countdown === 10 && Math.random() > 0.4) {
+      const faker = FAKE_VIEWERS[Math.floor(Math.random() * FAKE_VIEWERS.length)];
+      addChat(faker, "!catch", "catch");
+      leaderboard[faker] = (leaderboard[faker] || 0) + activeCritter.points;
+      renderLeaderboard();
+    }
+  }, 1000);
+}
+
+function scheduleNext() {
+  const delay = Math.round(8 + Math.random() * 12);
+  spawnCountdown = delay;
+  document.getElementById("spawnCountdown").textContent = spawnCountdown;
+  spawnCountInterval = setInterval(() => {
+    spawnCountdown--;
+    document.getElementById("spawnCountdown").textContent = Math.max(0, spawnCountdown);
+    if (spawnCountdown <= 0) clearInterval(spawnCountInterval);
+  }, 1000);
+  spawnTimeout = setTimeout(spawnCritter, delay * 1000);
+}
+
+async function handleCatch() {
+  if (!catchOpen || !activeCritter) return;
+  const username = document.getElementById("nameInput")?.value.trim() || YOUR_NAME;
+  
+  const btn = document.getElementById("catchBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "🎲 Würfeln..."; }
+
+  try {
+    const r = await fetch(`${SERVER}/api/catch`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ username })
+    });
+    const data = await r.json();
+
+    if (data.success) {
+      const critter = data.lumi;
+      clearInterval(countdownInterval);
+      catchOpen = false; activeCritter = null;
+      hideSpawnZone();
+      collection[critter.id] = (collection[critter.id] || 0) + 1;
+      const zone = document.getElementById("spawnZone");
+      const fx = document.createElement("div");
+      fx.className = "catch-effect"; fx.textContent = "🎉";
+      fx.style.background = RARITY_COLORS[critter.rarity] + "22";
+      zone.appendChild(fx);
+      setTimeout(() => { if (zone.contains(fx)) zone.removeChild(fx); }, 600);
+      addChat(username, "!catch", "catch");
+      addChat("🎮 System", `✅ ${username} fing ${critter.emoji} ${critter.name}! +${critter.points} pts`, "success");
+      renderCollection();
+      fetchServerState();
+    } else if (data.reason === "already_tried") {
+      if (btn) { btn.disabled = true; btn.textContent = "✋ Bereits versucht"; }
+      addChat("🎮 System", "Nur 1 Versuch pro Lumi!", "system");
+    } else if (data.reason === "no_lumi") {
+      if (btn) { btn.disabled = false; btn.textContent = "!catch — FANGEN!"; }
+      addChat("🎮 System", "Zu langsam — Lumi entkommen!", "system");
+    } else {
+      if (btn) { btn.disabled = true; btn.textContent = "❌ Entkommen..."; }
+      addChat("🎮 System", `❌ ${username} verfehlte das Lumi (${data.roll}% > ${data.needed}%)`, "system");
+    }
+  } catch {
+    if (btn) { btn.disabled = false; btn.textContent = "!catch — FANGEN!"; }
+  }
+}
+
 function renderCollection() {
-  const LUMIS = [
-    {id:"foxlumi",name:"Foxlumi",emoji:"🦊",rarity:"common",color:"#FF6B35",points:10},
-    {id:"moonbun",name:"Moonbun",emoji:"🐰",rarity:"common",color:"#A8D8EA",points:10},
-    {id:"glowfrog",name:"Glowfrog",emoji:"🐸",rarity:"common",color:"#95E1A3",points:15},
-    {id:"pebblet",name:"Pebblet",emoji:"🪨",rarity:"common",color:"#B0A090",points:12},
-    {id:"stardust",name:"Stardust",emoji:"✨",rarity:"rare",color:"#FFD700",points:50},
-    {id:"crystalpup",name:"Crystalpup",emoji:"🐺",rarity:"rare",color:"#B8A9FF",points:60},
-    {id:"shadowcat",name:"Shadowcat",emoji:"🐈‍⬛",rarity:"rare",color:"#6C63FF",points:70},
-    {id:"cosmicjelly",name:"Cosmicjelly",emoji:"🪼",rarity:"epic",color:"#00D4FF",points:120},
-    {id:"veilwing",name:"Veilwing",emoji:"🦋",rarity:"epic",color:"#FF69B4",points:130},
-    {id:"moondragon",name:"Moondragon",emoji:"🐉",rarity:"legendary",color:"#7B2FBE",points:300},
-    {id:"phoenix",name:"Phoenix",emoji:"🔥",rarity:"legendary",color:"#FF4444",points:350},
-  ];
-  const owned = LUMIS.filter(l => myCollection[l.id]);
-  document.getElementById("collLabel").textContent = `DEINE SAMMLUNG (${owned.length}/${TOTAL_LUMIS})`;
+  const owned = CRITTERS.filter(c => collection[c.id]);
+  document.getElementById("collLabel").textContent = `DEINE SAMMLUNG (${owned.length}/${CRITTERS.length})`;
   if (owned.length === 0) {
     document.getElementById("collEmpty").style.display = "block";
     document.getElementById("collGrid").style.display = "none";
@@ -471,65 +408,47 @@ function renderCollection() {
   document.getElementById("collEmpty").style.display = "none";
   const grid = document.getElementById("collGrid");
   grid.style.display = "grid";
-  grid.innerHTML = owned.map(l => `
-    <div class="critter-card" style="border-color:${RARITY_COLORS[l.rarity]}33">
-      <div class="cc-emoji">${l.emoji}</div>
-      <div class="cc-name">${l.name}</div>
-      <div class="cc-count" style="color:${RARITY_COLORS[l.rarity]}">×${myCollection[l.id]}</div>
+  grid.innerHTML = owned.map(c => `
+    <div class="critter-card" style="border-color:${RARITY_COLORS[c.rarity]}44">
+      <div class="critter-card-emoji">${c.emoji}</div>
+      <div class="critter-card-name">${c.name}</div>
+      <div class="critter-card-count" style="color:${RARITY_COLORS[c.rarity]}">×${collection[c.id]}</div>
     </div>`).join("");
 }
 
 function renderLeaderboard(lb) {
-  const rankColors = ["#FFD700","#C0C0C0","#CD7F32"];
-  const list = document.getElementById("lbList");
-  if (!lb || lb.length === 0) {
-    list.innerHTML = `<div style="text-align:center;color:#3a2d5a;padding:28px 0;font-size:12px">Noch keine Daten</div>`;
-    return;
+  // lb is array of {username, points} from server
+  // fallback to local leaderboard object if no server data
+  let rows = [];
+  if (lb && lb.length > 0) {
+    rows = lb;
+  } else {
+    rows = Object.entries(leaderboard).sort((a,b) => b[1]-a[1]).slice(0,8)
+      .map(([username, points]) => ({username, points}));
   }
-  list.innerHTML = lb.map((p, i) => `
-    <div class="lb-row ${p.name===username?'me':''}">
-      <div class="lb-rank" style="color:${rankColors[i]||'#3a2d5a'}">#${i+1}</div>
-      <div class="lb-name ${p.name===username?'me':''}">${p.name}</div>
-      <div class="lb-pts">${p.points} pts</div>
-    </div>`).join("");
+  const rankColors = ["#FFD700","#C0C0C0","#CD7F32"];
+  document.getElementById("lbList").innerHTML = rows.length === 0
+    ? `<div style="text-align:center;color:#444;padding:30px 0;font-size:12px">Noch keine Punkte!</div>`
+    : rows.map((p, i) => `
+      <div class="lb-row ${p.username===YOUR_NAME?'me':''}">
+        <div class="lb-rank" style="color:${rankColors[i]||'#555'}">#${i+1}</div>
+        <div class="lb-name ${p.username===YOUR_NAME?'me':''}">${p.username}</div>
+        <div class="lb-pts">${p.points} pts</div>
+      </div>`).join("");
 }
 
 function switchTab(name, btn) {
   document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById("tab-"+name).classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
   btn.classList.add("active");
-  if (name === "sammlung") fetchPlayerData();
 }
 
-function showToast(msg, color="#86efac") {
-  const old = document.querySelector(".toast");
-  if (old) old.remove();
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  t.style.background = color + "22";
-  t.style.color = color;
-  t.style.borderColor = color + "44";
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
-
-function createBgStars() {
-  const c = document.getElementById("bgStars");
-  for (let i = 0; i < 60; i++) {
-    const s = document.createElement("div");
-    s.className = "star";
-    s.style.left = Math.random()*100+"%";
-    s.style.top = Math.random()*100+"%";
-    s.style.setProperty("--d", (2+Math.random()*4)+"s");
-    s.style.setProperty("--delay", (Math.random()*4)+"s");
-    c.appendChild(s);
-  }
-}
-
-// Load player data on start
-if (username) fetchPlayerData();
+// Init
+addChat("🎮 System", "Stream Critter is LIVE! Watch for wild critters to appear!", "system");
+renderCollection();
+renderLeaderboard();
+setTimeout(spawnCritter, 3000);
 </script>
 </body>
 </html>
