@@ -106,6 +106,9 @@ function setCORS(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // Twitch Extension headers
+  res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:");
+  res.setHeader("X-Frame-Options", "ALLOWALL");
 }
 function sendJSON(res, data, status=200) {
   setCORS(res);
