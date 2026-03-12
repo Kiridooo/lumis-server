@@ -29,17 +29,43 @@ let gameState = {
 };
 
 const LUMIS = [
-  { id:"foxlumi",     name:"Foxlumi",     emoji:"🦊", rarity:"common",    color:"#FF6B35", points:10  },
-  { id:"moonbun",     name:"Moonbun",     emoji:"🐰", rarity:"common",    color:"#A8D8EA", points:10  },
-  { id:"glowfrog",    name:"Glowfrog",    emoji:"🐸", rarity:"common",    color:"#95E1A3", points:15  },
-  { id:"pebblet",     name:"Pebblet",     emoji:"🪨", rarity:"common",    color:"#B0A090", points:12  },
-  { id:"stardust",    name:"Stardust",    emoji:"✨", rarity:"rare",      color:"#FFD700", points:50  },
-  { id:"crystalpup",  name:"Crystalpup",  emoji:"🐺", rarity:"rare",      color:"#B8A9FF", points:60  },
-  { id:"shadowcat",   name:"Shadowcat",   emoji:"🐈‍⬛", rarity:"rare",   color:"#6C63FF", points:70  },
-  { id:"cosmicjelly", name:"Cosmicjelly", emoji:"🪼", rarity:"epic",      color:"#00D4FF", points:120 },
-  { id:"veilwing",    name:"Veilwing",    emoji:"🦋", rarity:"epic",      color:"#FF69B4", points:130 },
-  { id:"moondragon",  name:"Moondragon",  emoji:"🐉", rarity:"legendary", color:"#7B2FBE", points:300 },
-  { id:"phoenix",     name:"Phoenix",     emoji:"🔥", rarity:"legendary", color:"#FF4444", points:350 },
+  // Common
+  { id:"foxlumi",      name:"Fuchsfunken",   emoji:"🦊",  rarity:"common",    color:"#FF6B35", points:10  },
+  { id:"moonbun",      name:"Mondhase",      emoji:"🐰",  rarity:"common",    color:"#A8D8EA", points:10  },
+  { id:"glowfrog",     name:"Leuchtkröte",   emoji:"🐸",  rarity:"common",    color:"#95E1A3", points:10  },
+  { id:"pebblet",      name:"Steingeist",    emoji:"🪨",  rarity:"common",    color:"#B0A090", points:10  },
+  { id:"schneefloh",   name:"Schneefloh",    emoji:"🐭",  rarity:"common",    color:"#E8F4FD", points:10  },
+  { id:"windwiesel",   name:"Windwiesel",    emoji:"🦔",  rarity:"common",    color:"#C8B89A", points:10  },
+  { id:"pilzling",     name:"Pilzling",      emoji:"🍄",  rarity:"common",    color:"#E8A87C", points:12  },
+  { id:"tauwind",      name:"Tauwind",       emoji:"🐛",  rarity:"common",    color:"#A8E6CF", points:12  },
+  { id:"kieselkind",   name:"Kieselkind",    emoji:"🐢",  rarity:"common",    color:"#88C999", points:12  },
+  { id:"nebelkatze",   name:"Nebelkatze",    emoji:"🐱",  rarity:"common",    color:"#BDC3C7", points:12  },
+  { id:"blattelf",     name:"Blattelf",      emoji:"🌿",  rarity:"common",    color:"#82E0AA", points:12  },
+  { id:"sandfuchs",    name:"Sandfuchs",     emoji:"🦝",  rarity:"common",    color:"#F0B27A", points:12  },
+  // Rare
+  { id:"stardust",     name:"Sternenstaub",  emoji:"✨",  rarity:"rare",      color:"#FFD700", points:50  },
+  { id:"crystalpup",   name:"Kristallwolf",  emoji:"🐺",  rarity:"rare",      color:"#B8A9FF", points:55  },
+  { id:"shadowcat",    name:"Schattenkatze", emoji:"🐈‍⬛", rarity:"rare",   color:"#6C63FF", points:60  },
+  { id:"froststier",   name:"Froststier",    emoji:"🐂",  rarity:"rare",      color:"#AED6F1", points:55  },
+  { id:"donnervogel",  name:"Donnervogel",   emoji:"🦅",  rarity:"rare",      color:"#F7DC6F", points:60  },
+  { id:"tiefseequal",  name:"Tiefseequalle", emoji:"🪼",  rarity:"rare",      color:"#76D7C4", points:55  },
+  { id:"blitzmarder",  name:"Blitzmarder",   emoji:"⚡",  rarity:"rare",      color:"#F9E79F", points:60  },
+  { id:"nachtfalter",  name:"Nachtfalter",   emoji:"🦇",  rarity:"rare",      color:"#9B59B6", points:65  },
+  { id:"eisblume",     name:"Eisblume",      emoji:"❄️",  rarity:"rare",      color:"#AED6F1", points:55  },
+  { id:"glutspinne",   name:"Glutspinne",    emoji:"🕷️",  rarity:"rare",      color:"#E74C3C", points:65  },
+  // Epic
+  { id:"cosmicjelly",  name:"Weltenjelly",   emoji:"🪼",  rarity:"epic",      color:"#00D4FF", points:120 },
+  { id:"veilwing",     name:"Schleierfee",   emoji:"🦋",  rarity:"epic",      color:"#FF69B4", points:130 },
+  { id:"nebeldrache",  name:"Nebeldrache",   emoji:"🌫️",  rarity:"epic",      color:"#85C1E9", points:125 },
+  { id:"geisterluchs", name:"Geisterluchs",  emoji:"🐆",  rarity:"epic",      color:"#A569BD", points:130 },
+  { id:"sternenwal",   name:"Sternenwal",    emoji:"🐋",  rarity:"epic",      color:"#5DADE2", points:140 },
+  { id:"zeitfuchs",    name:"Zeitfuchs",     emoji:"🦊",  rarity:"epic",      color:"#F0E68C", points:135 },
+  // Legendary
+  { id:"moondragon",   name:"Monddrache",    emoji:"🐉",  rarity:"legendary", color:"#7B2FBE", points:300 },
+  { id:"phoenix",      name:"Phönix",        emoji:"🔥",  rarity:"legendary", color:"#FF4444", points:350 },
+  { id:"sternenkoenig",name:"Sternenkönig",  emoji:"👑",  rarity:"legendary", color:"#FFD700", points:400 },
+  { id:"abyssgeist",   name:"Abyssgeist",    emoji:"👻",  rarity:"legendary", color:"#2C3E50", points:380 },
+  { id:"ewigkeitsbaer",name:"Ewigkeitsbär",  emoji:"🐻",  rarity:"legendary", color:"#E8DAEF", points:420 },
 ];
 
 const RARITY_WEIGHTS = { common:70, rare:22, epic:6, legendary:2 };
