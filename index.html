@@ -98,6 +98,34 @@ body{
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:12px;font-weight:900;font-size:13px;pointer-events:none;z-index:200;border:1.5px solid rgba(255,255,255,0.1);animation:toastIn 0.3s ease,toastOut 0.3s ease 2.2s forwards}
 @keyframes toastIn{from{opacity:0;top:10px}to{opacity:1;top:20px}}
 @keyframes toastOut{to{opacity:0;top:10px}}
+
+/* ── Spin Wheel ── */
+.wheel-overlay{
+  position:absolute;inset:0;border-radius:18px;
+  background:rgba(10,8,20,0.96);backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  z-index:20;opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.wheel-overlay.visible{opacity:1;pointer-events:all}
+.wheel-wrap{position:relative;width:160px;height:160px}
+.wheel-canvas{border-radius:50%;box-shadow:0 0 30px rgba(123,47,190,0.4)}
+.wheel-pointer{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:10px solid transparent;
+  border-right:10px solid transparent;
+  border-top:20px solid #FFD700;
+  filter:drop-shadow(0 2px 4px rgba(255,215,0,0.6));
+}
+.wheel-result{
+  font-size:18px;font-weight:900;letter-spacing:1px;
+  opacity:0;transform:scale(0.8);transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  text-align:center;
+}
+.wheel-result.show{opacity:1;transform:scale(1)}
+.wheel-result.success{color:#86efac}
+.wheel-result.fail{color:#FF6B6B}
+
 .star{position:fixed;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;pointer-events:none;animation:twinkle var(--d,3s) var(--delay,0s) infinite}
 @keyframes twinkle{0%,100%{opacity:0}50%{opacity:0.5}}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -127,6 +155,15 @@ body{
     <div class="catch-chance" id="catchChance"></div>
     <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
     <button class="catch-btn" id="catchBtn" onclick="handleCatch()">✨ !catch — FANGEN!</button>
+  </div>
+
+  <!-- Spin Wheel Popup -->
+  <div class="wheel-overlay" id="wheelOverlay">
+    <div class="wheel-wrap">
+      <canvas class="wheel-canvas" id="wheelCanvas" width="160" height="160"></canvas>
+      <div class="wheel-pointer"></div>
+    </div>
+    <div class="wheel-result" id="wheelResult"></div>
   </div>
 </div>
 <div class="tabs">
@@ -264,32 +301,134 @@ async function handleCatch() {
   btn.disabled = true; btn.textContent = "🎲 Würfeln...";
   try {
     const data = await (await fetch("/api/catch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username})})).json();
-    if (data.success) {
-      const l = data.lumi;
-      showToast(`🎉 ${l.emoji} ${l.name} gefangen! +${l.points} pts!`,"#86efac");
-      addChat(username,`hat ${l.emoji} ${l.name} gefangen! +${l.points} pts 🎉`,"catch");
-      myCollection[l.id] = (myCollection[l.id]||0)+1; myPoints += l.points;
-      renderCollection(); clearInterval(countdownInterval);
-      catchOpen = false; currentLumi = null;
-      const zone = document.getElementById("spawnZone");
-      const fx = document.createElement("div"); fx.className="catch-effect"; fx.textContent="🎉";
-      fx.style.background=RC[l.rarity]+"22"; zone.appendChild(fx);
-      setTimeout(()=>{if(zone.contains(fx))zone.removeChild(fx);},700);
-      showIdle();
-    } else if (data.reason==="already_tried") {
+    if (data.reason === "already_tried") {
       btn.disabled=true; btn.textContent="✋ Bereits versucht";
       btn.style.background="rgba(255,255,255,0.06)"; btn.style.boxShadow="none";
       showToast("Nur 1 Versuch pro Lumi! 🎲","#FF9944");
-    } else if (data.reason==="no_lumi") {
+      return;
+    }
+    if (data.reason === "no_lumi") {
       btn.disabled=false; btn.textContent="✨ !catch — FANGEN!";
       showToast("Zu langsam! 😢","#FF6B6B");
-    } else {
-      btn.disabled=true; btn.textContent="❌ Entkommen...";
-      btn.style.background="rgba(255,80,80,0.12)"; btn.style.boxShadow="none";
-      addChat(username,`!catch — Lumi entkommen (${data.roll}% > ${data.needed}%)`,"normal");
-      showToast(`❌ Entkommen! (${data.roll}% > ${data.needed}%)`,"#FF6B6B");
+      return;
     }
+    // Show wheel animation
+    spinWheel(data.success, data.needed, data.roll, () => {
+      if (data.success) {
+        const l = data.lumi;
+        showToast(`🎉 ${l.emoji} ${l.name} gefangen! +${l.points} pts!`,"#86efac");
+        addChat(username,`hat ${l.emoji} ${l.name} gefangen! +${l.points} pts 🎉`,"catch");
+        myCollection[l.id] = (myCollection[l.id]||0)+1; myPoints += l.points;
+        renderCollection(); clearInterval(countdownInterval);
+        catchOpen = false; currentLumi = null;
+        const zone = document.getElementById("spawnZone");
+        const fx = document.createElement("div"); fx.className="catch-effect"; fx.textContent="🎉";
+        fx.style.background=RC[l.rarity]+"22"; zone.appendChild(fx);
+        setTimeout(()=>{if(zone.contains(fx))zone.removeChild(fx);},700);
+        showIdle();
+      } else {
+        btn.disabled=true; btn.textContent="❌ Entkommen...";
+        btn.style.background="rgba(255,80,80,0.12)"; btn.style.boxShadow="none";
+        addChat(username,`!catch — Lumi entkommen (${data.roll}% > ${data.needed}%)`,"normal");
+      }
+    });
   } catch { btn.disabled=false; btn.textContent="✨ !catch — FANGEN!"; }
+}
+
+// ── Spin Wheel ──
+function spinWheel(success, neededPct, rollPct, onDone) {
+  const overlay = document.getElementById("wheelOverlay");
+  const canvas = document.getElementById("wheelCanvas");
+  const result = document.getElementById("wheelResult");
+  const ctx = canvas.getContext("2d");
+  const cx = 80, cy = 80, r = 75;
+  result.className = "wheel-result";
+  result.textContent = "";
+  overlay.classList.add("visible");
+
+  // Wheel segments: green = catch zone, red = miss zone
+  const catchAngle = (neededPct / 100) * Math.PI * 2;
+  const missAngle = Math.PI * 2 - catchAngle;
+
+  // Where the pointer lands (top = 0, clockwise)
+  // success = land in green, fail = land in red
+  const greenStart = -Math.PI / 2; // pointer at top
+  // target angle: if success, land in middle of green; if fail, land in middle of red
+  const targetOffset = success
+    ? catchAngle * 0.3  // land near start of green (exciting near-miss feel)
+    : catchAngle + missAngle * 0.5; // land in middle of red
+
+  // Spin: multiple full rotations + target
+  const totalRotation = Math.PI * 2 * 6 + targetOffset; // 6 full spins
+  const duration = 2000;
+  let start = null;
+
+  function drawWheel(rotation) {
+    ctx.clearRect(0, 0, 160, 160);
+    // Miss segment (red)
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, greenStart + catchAngle + rotation, greenStart + Math.PI*2 + rotation);
+    ctx.closePath();
+    ctx.fillStyle = "#FF4444";
+    ctx.fill();
+    // Catch segment (green)
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, greenStart + rotation, greenStart + catchAngle + rotation);
+    ctx.closePath();
+    ctx.fillStyle = "#86efac";
+    ctx.fill();
+    // Divider lines
+    ctx.strokeStyle = "rgba(10,8,20,0.8)";
+    ctx.lineWidth = 3;
+    [greenStart + rotation, greenStart + catchAngle + rotation].forEach(angle => {
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle)*r, cy + Math.sin(angle)*r);
+      ctx.stroke();
+    });
+    // Center circle
+    ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI*2);
+    ctx.fillStyle = "#0e0b1a"; ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 2; ctx.stroke();
+    // Labels
+    ctx.font = "bold 11px Nunito"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    // Green label
+    const gMid = greenStart + rotation + catchAngle/2;
+    const gDist = catchAngle > 0.5 ? 45 : 52;
+    ctx.fillStyle = "#0e0b1a";
+    ctx.fillText("✓", cx + Math.cos(gMid)*gDist, cy + Math.sin(gMid)*gDist);
+    // Red label
+    const rMid = greenStart + catchAngle + rotation + missAngle/2;
+    ctx.fillText("✗", cx + Math.cos(rMid)*50, cy + Math.sin(rMid)*50);
+  }
+
+  function easeOut(t) { return 1 - Math.pow(1-t, 4); }
+
+  function animate(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const rotation = easeOut(progress) * totalRotation;
+    drawWheel(rotation);
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Show result
+      setTimeout(() => {
+        result.textContent = success ? "🎉 GEFANGEN!" : "❌ Entkommen...";
+        result.className = `wheel-result show ${success ? 'success' : 'fail'}`;
+        setTimeout(() => {
+          overlay.classList.remove("visible");
+          result.className = "wheel-result";
+          onDone();
+        }, 900);
+      }, 200);
+    }
+  }
+
+  drawWheel(0);
+  requestAnimationFrame(animate);
 }
 
 function renderCollection() {
