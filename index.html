@@ -399,19 +399,17 @@ function spinWheel(success, neededPct, rollPct, onDone) {
 
   function drawWheel(rotation) {
     ctx.clearRect(0, 0, 160, 160);
-    // Catch segment (green) — starts at pointer position
+    // Fill entire wheel red first
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = "#FF4444";
+    ctx.fill();
+    // Draw green catch segment on top (starts at pointer = top)
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, greenStart + rotation, greenStart + catchAngle + rotation);
+    ctx.arc(cx, cy, r, greenStart + rotation, greenStart + catchAngle + rotation, false);
     ctx.closePath();
     ctx.fillStyle = "#86efac";
-    ctx.fill();
-    // Miss segment (red) — rest of wheel
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, greenStart + catchAngle + rotation, greenStart + Math.PI*2 + rotation);
-    ctx.closePath();
-    ctx.fillStyle = "#FF4444";
     ctx.fill();
     // Divider lines
     ctx.strokeStyle = "rgba(10,8,20,0.8)";
@@ -549,7 +547,7 @@ function getStats(collection) {
 function getProgress(ach, collection, stats) {
   switch(ach.type) {
     case "total":     { const n = parseInt(ach.id.replace("catch","")); return `${Math.min(stats.total,n)} / ${n}`; }
-    case "unique":    { const n = parseInt(ach.id.replace("collect","")||11); return `${Math.min(stats.unique,n)} / ${n}`; }
+    case "unique":    { const n = ach.id==="collectall" ? 11 : parseInt(ach.id.replace("collect","")); return `${Math.min(stats.unique,n)} / ${n}`; }
     case "rare":      return `${Math.min(stats.rare,1)} / 1`;
     case "epic":      return `${Math.min(stats.epic,1)} / 1`;
     case "legendary": { const n = ach.id==="legendary3"?3:1; return `${Math.min(stats.legendary,n)} / ${n}`; }
