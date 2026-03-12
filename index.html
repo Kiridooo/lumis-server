@@ -126,6 +126,34 @@ body{
 .wheel-result.success{color:#86efac}
 .wheel-result.fail{color:#FF6B6B}
 
+
+/* ── Errungenschaften ── */
+.ach-panel{padding:14px;display:flex;flex-direction:column;gap:8px}
+.ach-card{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:12px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  transition:all 0.3s;
+}
+.ach-card.unlocked{
+  background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(123,47,190,0.08));
+  border-color:rgba(255,215,0,0.3);
+  box-shadow:0 0 12px rgba(255,215,0,0.1);
+}
+.ach-card.locked{opacity:0.45;filter:grayscale(0.6)}
+.ach-icon{font-size:28px;min-width:36px;text-align:center}
+.ach-info{flex:1}
+.ach-name{font-size:13px;font-weight:900;color:#e8e0ff}
+.ach-desc{font-size:10px;color:#7a6d9a;margin-top:1px}
+.ach-badge{
+  font-size:9px;font-weight:900;letter-spacing:1px;
+  padding:3px 8px;border-radius:10px;white-space:nowrap;
+}
+.ach-badge.gold{background:rgba(255,215,0,0.15);color:#FFD700;border:1px solid rgba(255,215,0,0.3)}
+.ach-badge.locked{background:rgba(255,255,255,0.05);color:#5a5070;border:1px solid rgba(255,255,255,0.08)}
+.ach-progress{font-size:9px;color:#6b5f8a;margin-top:2px}
+
 .star{position:fixed;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;pointer-events:none;animation:twinkle var(--d,3s) var(--delay,0s) infinite}
 @keyframes twinkle{0%,100%{opacity:0}50%{opacity:0.5}}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -170,6 +198,7 @@ body{
   <button class="tab-btn active" onclick="switchTab('live',this)">💬 Chat</button>
   <button class="tab-btn" onclick="switchTab('sammlung',this)">🫙 Sammlung</button>
   <button class="tab-btn" onclick="switchTab('rangliste',this)">🏆 Top</button>
+  <button class="tab-btn" onclick="switchTab('errungenschaften',this)">🏅 Ziele</button>
 </div>
 <div class="panel">
   <div id="tab-live" class="tab-content active"><div class="chat-log" id="chatLog"></div></div>
@@ -180,6 +209,9 @@ body{
       <div class="critter-grid" id="collGrid" style="display:none"></div>
     </div>
   </div>
+  <div id="tab-errungenschaften" class="tab-content">
+    <div class="ach-panel" id="achList"></div>
+  </div>
   <div id="tab-rangliste" class="tab-content">
     <div class="lb-panel">
       <div class="sec-label">TOP CATCHER</div>
@@ -188,6 +220,7 @@ body{
   </div>
 </div>
 <div class="footer">LUMIS • COMMON › RARE › EPIC › LEGENDARY</div>
+<div style="font-size:9px;color:#2a2040;letter-spacing:1px;margin-top:-8px">made by <span style="color:#7B2FBE;font-weight:900">Kiridooo</span></div>
 
 <script>
 const RC = {common:"#95E1A3",rare:"#7B8FFF",epic:"#00D4FF",legendary:"#FFD700"};
@@ -251,6 +284,7 @@ async function fetchPlayerData() {
     const data = await (await fetch(`/api/player/${encodeURIComponent(username)}`)).json();
     myCollection = data.collection || {}; myPoints = data.points || 0;
     renderCollection();
+    renderAchievements();
   } catch {}
 }
 
@@ -355,8 +389,8 @@ function spinWheel(success, neededPct, rollPct, onDone) {
   const greenStart = -Math.PI / 2; // pointer at top
   // target angle: if success, land in middle of green; if fail, land in middle of red
   const targetOffset = success
-    ? catchAngle * 0.3  // land near start of green (exciting near-miss feel)
-    : catchAngle + missAngle * 0.5; // land in middle of red
+    ? catchAngle * 0.5  // land in middle of green = gefangen
+    : catchAngle + missAngle * 0.5; // land in middle of red = entkommen
 
   // Spin: multiple full rotations + target
   const totalRotation = Math.PI * 2 * 6 + targetOffset; // 6 full spins
@@ -365,19 +399,19 @@ function spinWheel(success, neededPct, rollPct, onDone) {
 
   function drawWheel(rotation) {
     ctx.clearRect(0, 0, 160, 160);
-    // Miss segment (red)
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, greenStart + catchAngle + rotation, greenStart + Math.PI*2 + rotation);
-    ctx.closePath();
-    ctx.fillStyle = "#FF4444";
-    ctx.fill();
-    // Catch segment (green)
+    // Catch segment (green) — starts at pointer position
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, r, greenStart + rotation, greenStart + catchAngle + rotation);
     ctx.closePath();
     ctx.fillStyle = "#86efac";
+    ctx.fill();
+    // Miss segment (red) — rest of wheel
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, greenStart + catchAngle + rotation, greenStart + Math.PI*2 + rotation);
+    ctx.closePath();
+    ctx.fillStyle = "#FF4444";
     ctx.fill();
     // Divider lines
     ctx.strokeStyle = "rgba(10,8,20,0.8)";
@@ -452,6 +486,7 @@ function switchTab(name,btn) {
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active"); btn.classList.add("active");
   if(name==="sammlung") fetchPlayerData();
+  if(name==="errungenschaften") { fetchPlayerData().then(renderAchievements); renderAchievements(); }
 }
 
 function addChat(user,msg,type="normal") {
@@ -466,6 +501,102 @@ function showToast(msg,color="#86efac") {
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
   t.style.background=color+"22"; t.style.color=color; t.style.borderColor=color+"44";
   document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+}
+
+
+// ── Errungenschaften ──
+const ACHIEVEMENTS = [
+  // Anzahl-basiert
+  { id:"catch1",    icon:"🌱", name:"Erster Fang",       desc:"Fange dein erstes Lumi",          req: (c,s) => s.total >= 1,    type:"total" },
+  { id:"catch10",   icon:"🌿", name:"Fleißiger Jäger",   desc:"Fange insgesamt 10 Lumis",         req: (c,s) => s.total >= 10,   type:"total" },
+  { id:"catch50",   icon:"🌳", name:"Lumi-Experte",      desc:"Fange insgesamt 50 Lumis",         req: (c,s) => s.total >= 50,   type:"total" },
+  { id:"catch100",  icon:"🏆", name:"Lumi-Legende",      desc:"Fange insgesamt 100 Lumis",        req: (c,s) => s.total >= 100,  type:"total" },
+  // Sammlung
+  { id:"collect4",  icon:"📦", name:"Anfänger-Sammler",  desc:"Sammle 4 verschiedene Lumis",      req: (c,s) => s.unique >= 4,   type:"unique" },
+  { id:"collect8",  icon:"🫙", name:"Fortgeschritten",   desc:"Sammle 8 verschiedene Lumis",      req: (c,s) => s.unique >= 8,   type:"unique" },
+  { id:"collectall",icon:"✨", name:"Vollständige Sammlung", desc:"Fange alle 11 Lumis",          req: (c,s) => s.unique >= 11,  type:"unique" },
+  // Seltenheit
+  { id:"rare1",     icon:"🔵", name:"Rarität gefunden",  desc:"Fange ein Rare Lumi",              req: (c,s) => s.rare >= 1,     type:"rare" },
+  { id:"epic1",     icon:"💎", name:"Epische Beute",     desc:"Fange ein Epic Lumi",              req: (c,s) => s.epic >= 1,     type:"epic" },
+  { id:"legendary1",icon:"⭐", name:"Legendär!",         desc:"Fange ein Legendary Lumi",         req: (c,s) => s.legendary >= 1,type:"legendary" },
+  { id:"legendary3",icon:"🐉", name:"Drachenjäger",      desc:"Fange 3 Legendary Lumis",          req: (c,s) => s.legendary >= 3,type:"legendary" },
+  // Spezifische Lumis
+  { id:"moondragon",icon:"🐉", name:"Monddrachen-Bändiger", desc:"Fange den Moondragon",         req: (c,s) => (c["moondragon"]||0) >= 1, type:"specific" },
+  { id:"phoenix1",  icon:"🔥", name:"Phönix-Jäger",     desc:"Fange den Phoenix",                req: (c,s) => (c["phoenix"]||0) >= 1,    type:"specific" },
+];
+
+function getStats(collection) {
+  const lumisData = {
+    foxlumi:"common",moonbun:"common",glowfrog:"common",pebblet:"common",
+    stardust:"rare",crystalpup:"rare",shadowcat:"rare",
+    cosmicjelly:"epic",veilwing:"epic",
+    moondragon:"legendary",phoenix:"legendary"
+  };
+  let total=0, unique=0, rare=0, epic=0, legendary=0;
+  for (const [id, count] of Object.entries(collection)) {
+    if (count > 0) {
+      total += count;
+      unique++;
+      const rarity = lumisData[id];
+      if (rarity === "rare") rare += count;
+      if (rarity === "epic") epic += count;
+      if (rarity === "legendary") legendary += count;
+    }
+  }
+  return { total, unique, rare, epic, legendary };
+}
+
+function getProgress(ach, collection, stats) {
+  switch(ach.type) {
+    case "total":     { const n = parseInt(ach.id.replace("catch","")); return `${Math.min(stats.total,n)} / ${n}`; }
+    case "unique":    { const n = parseInt(ach.id.replace("collect","")||11); return `${Math.min(stats.unique,n)} / ${n}`; }
+    case "rare":      return `${Math.min(stats.rare,1)} / 1`;
+    case "epic":      return `${Math.min(stats.epic,1)} / 1`;
+    case "legendary": { const n = ach.id==="legendary3"?3:1; return `${Math.min(stats.legendary,n)} / ${n}`; }
+    case "specific":  { const id=ach.id==="moondragon"?"moondragon":"phoenix"; return `${Math.min(collection[id]||0,1)} / 1`; }
+    default: return "";
+  }
+}
+
+function renderAchievements() {
+  const stats = getStats(myCollection);
+  const list = document.getElementById("achList");
+  if (!list) return;
+
+  const unlocked = ACHIEVEMENTS.filter(a => a.req(myCollection, stats));
+  const locked   = ACHIEVEMENTS.filter(a => !a.req(myCollection, stats));
+
+  list.innerHTML = "";
+
+  if (unlocked.length === 0 && locked.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:#3a2d5a;padding:28px 0;font-size:12px">Noch keine Daten — Namen eingeben!</div>';
+    return;
+  }
+
+  // Header
+  if (unlocked.length > 0) {
+    const hdr = document.createElement("div");
+    hdr.style.cssText = "font-size:10px;color:#FFD700;letter-spacing:2px;font-weight:900;margin-bottom:4px";
+    hdr.textContent = `FREIGESCHALTET (${unlocked.length}/${ACHIEVEMENTS.length})`;
+    list.appendChild(hdr);
+  }
+
+  [...unlocked, ...locked].forEach(ach => {
+    const isUnlocked = ach.req(myCollection, stats);
+    const progress = getProgress(ach, myCollection, stats);
+    const div = document.createElement("div");
+    div.className = `ach-card ${isUnlocked ? "unlocked" : "locked"}`;
+    div.innerHTML = `
+      <div class="ach-icon">${ach.icon}</div>
+      <div class="ach-info">
+        <div class="ach-name">${ach.name}</div>
+        <div class="ach-desc">${ach.desc}</div>
+        ${!isUnlocked ? `<div class="ach-progress">${progress}</div>` : ""}
+      </div>
+      <div class="ach-badge ${isUnlocked ? "gold" : "locked"}">${isUnlocked ? "✓ DONE" : progress}</div>
+    `;
+    list.appendChild(div);
+  });
 }
 
 function createStars() {
