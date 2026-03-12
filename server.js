@@ -131,12 +131,19 @@ const server = http.createServer(async (req, res) => {
 
   // Serve HTML files
   if (req.method === "GET" && (pathname === "/" || pathname === "/index.html")) {
-    res.writeHead(200, { "Content-Type": "text/html" });
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "Access-Control-Allow-Origin": "*",
+    });
     res.end(fs.readFileSync(path.join(__dirname, "index.html")));
     return;
   }
   if (req.method === "GET" && pathname === "/video_overlay.html") {
-    res.writeHead(200, { "Content-Type": "text/html" });
+    res.writeHead(200, {
+      "Content-Type": "text/html",
+      "Access-Control-Allow-Origin": "*",
+      "Content-Security-Policy": "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
+    });
     res.end(fs.readFileSync(path.join(__dirname, "video_overlay.html")));
     return;
   }
