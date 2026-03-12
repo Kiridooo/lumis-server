@@ -432,8 +432,9 @@ const ACHIEVEMENTS = [
   { id:"catch50",   icon:"🌳", name:"Lumi-Experte",      desc:"Fange insgesamt 50 Lumis",         req: (c,s) => s.total >= 50,   type:"total" },
   { id:"catch100",  icon:"🏆", name:"Lumi-Legende",      desc:"Fange insgesamt 100 Lumis",        req: (c,s) => s.total >= 100,  type:"total" },
   // Sammlung
-  { id:"collect4",  icon:"📦", name:"Anfänger-Sammler",  desc:"Sammle 4 verschiedene Lumis",      req: (c,s) => s.unique >= 4,   type:"unique" },
-  { id:"collect8",  icon:"🫙", name:"Fortgeschritten",   desc:"Sammle 8 verschiedene Lumis",      req: (c,s) => s.unique >= 8,   type:"unique" },
+  { id:"collect5",  icon:"📦", name:"Anfänger-Sammler",  desc:"Sammle 5 verschiedene Lumis",      req: (c,s) => s.unique >= 5,   type:"unique" },
+  { id:"collect15", icon:"🫙", name:"Fortgeschrittener Sammler", desc:"Sammle 15 verschiedene Lumis", req: (c,s) => s.unique >= 15,  type:"unique" },
+  { id:"collect25", icon:"🌟", name:"Fast vollständig",  desc:"Sammle 25 verschiedene Lumis",     req: (c,s) => s.unique >= 25,  type:"unique" },
   { id:"collectall",icon:"✨", name:"Vollständige Sammlung", desc:"Fange alle 33 Lumis",          req: (c,s) => s.unique >= 33,  type:"unique" },
   // Seltenheit
   { id:"rare1",     icon:"🔵", name:"Rarität gefunden",  desc:"Fange ein Rare Lumi",              req: (c,s) => s.rare >= 1,     type:"rare" },
@@ -469,7 +470,7 @@ function getStats(collection) {
 function getProgress(ach, collection, stats) {
   switch(ach.type) {
     case "total":     { const n = parseInt(ach.id.replace("catch","")); return `${Math.min(stats.total,n)} / ${n}`; }
-    case "unique":    { const n = ach.id==="collectall" ? 11 : parseInt(ach.id.replace("collect","")); return `${Math.min(stats.unique,n)} / ${n}`; }
+    case "unique":    { const n = ach.id==="collectall" ? 33 : parseInt(ach.id.replace("collect","")); return `${Math.min(stats.unique, isNaN(n)?33:n)} / ${isNaN(n)?33:n}`; }
     case "rare":      return `${Math.min(stats.rare,1)} / 1`;
     case "epic":      return `${Math.min(stats.epic,1)} / 1`;
     case "legendary": { const n = ach.id==="legendary3"?3:1; return `${Math.min(stats.legendary,n)} / ${n}`; }
